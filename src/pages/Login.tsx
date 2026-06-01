@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from "react";
 import type { ServiceResult } from "../types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
+import { saveAuthSession } from "../hooks/authSession";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
+  const navigate = useNavigate();
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -16,10 +19,13 @@ function Login() {
       email: String(formData.get("email") ?? ""),
       password: String(formData.get("password") ?? ""),
     };
+    const remember = formData.get("remember") === "on";
+
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
       const response = await fetch(`${baseUrl}/api/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-type": "application/json",
         },
@@ -31,13 +37,17 @@ function Login() {
         throw new Error(result.message || "Login failed.");
       }
 
-      setMessage(result.message);
+      if (!result.data) {
+        throw new Error("Login succeeded without auth data.");
+      }
 
-      console.log(result.data?.token);
-      console.log(result.data?.username);
-      setIsSubmitting(false);
+      saveAuthSession(result.data, remember);
+      setMessage(result.message);
+      navigate("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 
