@@ -32,3 +32,43 @@ export function saveAuthSession(auth: AuthResponse, remember: boolean) {
   otherStorage.removeItem(JWT_KEY);
 }
 
+// Get the full session (token + user info)
+export function getAuthSession(): AuthSession | null {
+  const raw =
+    window.localStorage.getItem(AUTH_SESSION_KEY) ??
+    window.sessionStorage.getItem(AUTH_SESSION_KEY);
+
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as AuthSession;
+  } catch {
+    return null;
+  }
+}
+
+// Get just the JWT token
+export function getAuthToken(): string | null {
+  return (
+    window.localStorage.getItem(JWT_KEY) ??
+    window.sessionStorage.getItem(JWT_KEY)
+  );
+}
+
+// Get the stored user info
+export function getStoredUser(): StoredUser | null {
+  return getAuthSession()?.user ?? null;
+}
+
+// Check if user is logged in
+export function isAuthenticated(): boolean {
+  return getAuthToken() !== null;
+}
+
+// Clear session on logout
+export function clearAuthSession() {
+  window.localStorage.removeItem(AUTH_SESSION_KEY);
+  window.localStorage.removeItem(JWT_KEY);
+  window.sessionStorage.removeItem(AUTH_SESSION_KEY);
+  window.sessionStorage.removeItem(JWT_KEY);
+}

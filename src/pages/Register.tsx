@@ -1,8 +1,17 @@
 import { useState, type FormEvent } from "react";
 import type { ServiceResult } from "../types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
+import { useNavigate } from "react-router-dom";
+import { isAuthenticated } from "../hooks/authSession";
+import { sleep } from "../hooks/sleep";
 
 function Register() {
+  const navigate = useNavigate();
+
+  if (isAuthenticated()) {
+    navigate("/");
+  }
+
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -37,6 +46,8 @@ function Register() {
       }
 
       setMessage(result.message);
+      await sleep(1000);
+      navigate("/");
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Registration failed.",

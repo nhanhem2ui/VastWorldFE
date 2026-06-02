@@ -1,11 +1,15 @@
 import { useState, type FormEvent } from "react";
 import type { ServiceResult } from "../types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
-import { saveAuthSession } from "../hooks/authSession";
+import { isAuthenticated, saveAuthSession } from "../hooks/authSession";
 import { useNavigate } from "react-router-dom";
+import { sleep } from "../hooks/sleep";
 
 function Login() {
   const navigate = useNavigate();
+  if (isAuthenticated()) {
+    navigate("/");
+  }
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -43,6 +47,7 @@ function Login() {
 
       saveAuthSession(result.data, remember);
       setMessage(result.message);
+      await sleep(1000);
       navigate("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed");
