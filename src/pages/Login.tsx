@@ -47,6 +47,7 @@ function Login() {
 
       saveAuthSession(result.data, remember);
       setMessage(result.message);
+
       await sleep(1000);
       navigate("/");
     } catch (error) {
