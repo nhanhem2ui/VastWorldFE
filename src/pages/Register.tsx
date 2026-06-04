@@ -4,6 +4,8 @@ import type { AuthResponse } from "../types/AuthResponse";
 import { useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../hooks/authSession";
 import { sleep } from "../hooks/sleep";
+import { setFlashMessage } from "../hooks/flashMessage";
+import FlashMessage from "../components/FlashMessage";
 
 function Register() {
   const navigate = useNavigate();
@@ -47,18 +49,20 @@ function Register() {
 
       setMessage(result.message);
       await sleep(1000);
-      navigate("/");
+      navigate("/Login");
     } catch (error) {
       setMessage(
         error instanceof Error ? error.message : "Registration failed.",
       );
     } finally {
       setIsSubmitting(false);
+      setFlashMessage("Register Successfully");
     }
   }
 
   return (
     <main className="login-page register-page">
+      <FlashMessage />
       <section className="login-visual" aria-label="Create a VastWorld account">
         <a className="login-brand" href="/">
           VastWorld
