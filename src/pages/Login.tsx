@@ -4,6 +4,8 @@ import type { AuthResponse } from "../types/AuthResponse";
 import { isAuthenticated, saveAuthSession } from "../hooks/authSession";
 import { useNavigate } from "react-router-dom";
 import { sleep } from "../hooks/sleep";
+import FlashMessage from "../components/FlashMessage";
+import { setFlashMessage } from "../hooks/flashMessage";
 
 function Login() {
   const navigate = useNavigate();
@@ -54,11 +56,13 @@ function Login() {
       setMessage(error instanceof Error ? error.message : "Login failed");
     } finally {
       setIsSubmitting(false);
+      setFlashMessage("Login Successfully");
     }
   }
 
   return (
     <main className="login-page">
+      <FlashMessage />
       <section className="login-visual" aria-label="VastWorld account login">
         <a className="login-brand" href="/">
           VastWorld

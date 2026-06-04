@@ -1,8 +1,7 @@
 import "../App.css";
 import CurrentStatus from "../components/CurrentStatus";
+import FlashMessage from "../components/FlashMessage";
 import Navbar from "../components/Navbar";
-import Login from "./Login";
-import Register from "./Register";
 
 const highlights = [
   {
@@ -19,23 +18,9 @@ const highlights = [
   },
 ];
 function Home() {
-  const isLoginPage =
-    window.location.pathname === "/login" ||
-    window.location.pathname === "/pages/login";
-  const isRegisterPage =
-    window.location.pathname === "/register" ||
-    window.location.pathname === "/pages/register";
-
-  if (isLoginPage) {
-    return <Login />;
-  }
-
-  if (isRegisterPage) {
-    return <Register />;
-  }
-
   return (
     <main className="homepage">
+      <FlashMessage />
       <Navbar />
 
       <section className="hero" id="play">
@@ -47,7 +32,7 @@ function Home() {
             news, gameplay, and community updates.
           </p>
           <div className="hero-actions">
-            <a className="button primary" href="#game">
+            <a className="button primary" href="/Game">
               See the world
             </a>
           </div>

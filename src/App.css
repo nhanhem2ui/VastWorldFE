@@ -23,6 +23,17 @@
   text-decoration: none;
 }
 
+.nav-links button {
+  color: inherit;
+  text-decoration: none;
+  background: transparent;
+  border: none;
+}
+
+.nav-links a:hover,
+.nav-links button:hover {
+  color: rgb(175, 56, 41);
+}
 .brand {
   font-size: 1.25rem;
   font-weight: 800;
