@@ -1,4 +1,5 @@
-export type AuthResponse = {
+export interface AuthResponse {
+  userID: string;
   token: string;
   expiresIn: number;
   username: string;

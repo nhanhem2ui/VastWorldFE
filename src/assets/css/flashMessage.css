@@ -1,0 +1,23 @@
+.modal-box {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  padding: 14px 22px;
+  border-radius: 8px;
+  color: #183323;
+  background: #dfe8d5;
+  border: 1px solid #b8cead;
+  box-shadow: 0 8px 32px rgba(19, 32, 24, 0.15);
+  font-weight: 700;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: flash-in 0.2s ease;
+}
+
+@keyframes flash-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
