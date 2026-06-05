@@ -1,6 +1,5 @@
 import { clearAuthSession } from "./authSession";
 import { setFlashMessage } from "./flashMessage";
-
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 export async function Logout(){
     const response = await fetch(`${baseUrl}/api/auth/logout`, {
@@ -11,8 +10,8 @@ export async function Logout(){
         }
       });
       if(response.ok){
-        clearAuthSession();
         setFlashMessage("Logout Successfully");
+        clearAuthSession();
       }
 }
 export default Logout

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { ServiceResult } from "../types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { isAuthenticated } from "../hooks/authSession";
 import { sleep } from "../hooks/sleep";
 import { setFlashMessage } from "../hooks/flashMessage";
@@ -9,9 +9,8 @@ import FlashMessage from "../components/FlashMessage";
 
 function Register() {
   const navigate = useNavigate();
-
   if (isAuthenticated()) {
-    navigate("/");
+    return <Navigate to={"/"} replace />;
   }
 
   const [message, setMessage] = useState("");
@@ -48,6 +47,7 @@ function Register() {
       }
 
       setMessage(result.message);
+      setFlashMessage("Register Successfully");
       await sleep(1000);
       navigate("/Login");
     } catch (error) {
@@ -56,7 +56,6 @@ function Register() {
       );
     } finally {
       setIsSubmitting(false);
-      setFlashMessage("Register Successfully");
     }
   }
 

@@ -4,6 +4,7 @@ import Logout from "../hooks/logout";
 
 function Navbar() {
   let navigate = useNavigate();
+
   async function handleLogout() {
     await Logout();
     navigate("/");

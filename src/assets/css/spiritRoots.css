@@ -1,0 +1,91 @@
+.spiritRoot {
+  width: 5rem;
+  height: 5rem;
+
+  border-radius: 50%;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  color: white;
+  font-size: 2rem;
+
+  background: var(--ball-gradient);
+
+  background-size: 200% 200%;
+
+  animation: shift 2s ease-in-out infinite alternate;
+}
+
+.water {
+  --ball-gradient:
+linear-gradient(142deg,rgba(199, 247, 252, 1) 0%, rgba(0, 148, 181, 1) 9%, rgba(0, 106, 199, 1) 49%, rgba(55, 130, 196, 1) 81%, rgba(2, 93, 150, 1) 100%);
+}
+
+.fire {
+  --ball-gradient:
+linear-gradient(142deg,rgba(148, 0, 0, 1) 0%, rgba(204, 6, 6, 1) 9%, rgba(255, 0, 0, 1) 49%, rgba(255, 0, 0, 1) 88%, rgba(255, 148, 148, 1) 100%);
+}
+
+.earth{ 
+ --ball-gradient:
+ linear-gradient(142deg,rgba(247, 92, 35, 1) 0%, rgba(176, 50, 4, 1) 9%, rgba(199, 69, 14, 1) 49%, rgba(168, 67, 0, 1) 81%, rgba(255, 211, 179, 1) 100%);
+}
+
+.wood{ 
+ --ball-gradient:
+ linear-gradient(142deg,rgba(148, 242, 136, 1) 0%, rgba(61, 184, 24, 1) 9%, rgba(5, 156, 0, 1) 49%, rgba(4, 204, 37, 1) 81%, rgba(20, 171, 0, 1) 100%);
+}
+
+.metal{
+ --ball-gradient:
+linear-gradient(
+    45deg, 
+    #838487 0%, 
+    #A8A9AD 15%, 
+    #AFB0B3 30%, 
+    #ffffff 50%, 
+    #AFB0B3 70%, 
+    #838487 85%, 
+    #A1A2A5 100%
+  );
+  color: black;
+}
+
+.lightning{
+ --ball-gradient:
+ linear-gradient(142deg,rgba(227, 210, 252, 1) 0%, rgba(68, 0, 102, 1) 10%, rgba(137, 29, 224, 1) 49%, rgba(116, 29, 222, 1) 81%, rgba(37, 3, 61, 1) 100%);
+}
+
+.wind{
+ --ball-gradient:
+ linear-gradient(142deg,rgba(135, 135, 135, 1) 0%, rgba(255, 255, 255, 1) 31%, rgba(255, 255, 255, 1) 49%, rgba(235, 235, 235, 1) 68%, rgba(117, 117, 117, 1) 100%);
+ color: black;
+}
+.ice{
+ --ball-gradient:
+ linear-gradient(135deg, #c2f5ff 0%, #72c6ef 50%, #004e8f 100%);
+ color: black;
+}
+
+.light{
+ --ball-gradient:
+ linear-gradient(142deg,rgba(255, 255, 255, 1) 0%, rgba(255, 161, 89, 1) 13%, rgba(250, 234, 132, 1) 46%, rgba(255, 239, 150, 1) 83%, rgba(212, 141, 0, 1) 100%);
+ color: black;
+}
+
+.dark{
+ --ball-gradient:
+ linear-gradient(142deg,rgba(110, 110, 110, 1) 0%, rgba(23, 23, 23, 1) 13%, rgba(51, 51, 51, 1) 46%, rgba(28, 28, 28, 1) 83%, rgba(10, 0, 0, 1) 100%);
+}
+
+@keyframes shift {
+  from {
+    background-position: 0% 50%;
+  }
+
+  to {
+    background-position: 100% 50%;
+  }
+}

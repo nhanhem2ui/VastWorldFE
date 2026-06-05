@@ -3,7 +3,7 @@ import type { AuthResponse } from "../types/AuthResponse";
 const AUTH_SESSION_KEY = "vastworld.auth";
 const JWT_KEY = "vastworld.jwt";
 
-export type StoredUser = Pick<AuthResponse, "username" | "email" | "role">;
+export type StoredUser = Pick<AuthResponse, "userID" | "username" | "email" | "role">;
 
 export type AuthSession = {
   token: string;
@@ -19,6 +19,7 @@ export function saveAuthSession(auth: AuthResponse, remember: boolean) {
     token: auth.token,
     expiresIn: auth.expiresIn,
     user: {
+      userID: auth.userID,
       username: auth.username,
       email: auth.email,
       role: auth.role,

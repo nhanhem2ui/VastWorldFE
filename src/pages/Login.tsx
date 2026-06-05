@@ -2,19 +2,20 @@ import { useState, type FormEvent } from "react";
 import type { ServiceResult } from "../types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
 import { isAuthenticated, saveAuthSession } from "../hooks/authSession";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { sleep } from "../hooks/sleep";
 import FlashMessage from "../components/FlashMessage";
 import { setFlashMessage } from "../hooks/flashMessage";
 
 function Login() {
   const navigate = useNavigate();
-  if (isAuthenticated()) {
-    navigate("/");
-  }
+
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  if (isAuthenticated()) {
+    return <Navigate to={"/"} replace />;
+  }
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
@@ -37,6 +38,7 @@ function Login() {
         },
         body: JSON.stringify(loginRequest),
       });
+
       const result: ServiceResult<AuthResponse> = await response.json();
 
       if (!response.ok || !result.success) {
@@ -48,15 +50,15 @@ function Login() {
       }
 
       saveAuthSession(result.data, remember);
+      setFlashMessage("Login Successfully");
       setMessage(result.message);
-
       await sleep(1000);
+
       navigate("/");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Login failed");
     } finally {
       setIsSubmitting(false);
-      setFlashMessage("Login Successfully");
     }
   }
 
@@ -64,9 +66,8 @@ function Login() {
     <main className="login-page">
       <FlashMessage />
       <section className="login-visual" aria-label="VastWorld account login">
-        <a className="login-brand" href="/">
-          VastWorld
-        </a>
+        <a className="login-brand" href="/"></a>
+        VastWorld
         <div className="login-copy">
           <p className="eyebrow">Player access</p>
           <h1>Continue your journey.</h1>
