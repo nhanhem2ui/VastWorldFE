@@ -10,12 +10,12 @@ export function useExistingPlayer() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const token = getAuthToken();
-  const user = getStoredUser();
-
+  
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
+  
   useEffect(() => {
+    const token = getAuthToken();
+    const user = getStoredUser();
     async function loadPlayer() {
       if (!token || !user?.userID) {
         setError("Please sign in.");
@@ -40,6 +40,7 @@ export function useExistingPlayer() {
 
         if (result.data) {
           setPlayer(result.data);
+          console.log(result.data);
         }
       } catch (error) {
         setError(
@@ -53,7 +54,7 @@ export function useExistingPlayer() {
     }
 
     loadPlayer();
-  }, [baseUrl, token, user?.userID]);
+  }, []);
 
   return {
     player,

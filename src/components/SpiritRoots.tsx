@@ -1,3 +1,5 @@
+import "../assets/css/spiritRoots.css";
+
 export function MetalSpiritRoot() {
   return <span className="spiritRoot metal">金</span>;
 }
