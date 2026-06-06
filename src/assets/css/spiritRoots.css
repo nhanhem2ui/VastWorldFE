@@ -1,21 +1,20 @@
 .spiritRoot {
   width: 5rem;
   height: 5rem;
-
   border-radius: 50%;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   color: white;
   font-size: 2rem;
 
-  background: var(--ball-gradient);
-
+  background-image: var(--ball-gradient);
+  
   background-size: 200% 200%;
+  background-position: 0% 50%;
 
-  animation: shift 2s ease-in-out infinite alternate;
+  /* FIX 3: Use a highly specific animation name to prevent global collisions */
+  animation: spiritRootShift 2s ease-in-out infinite alternate;
 }
 
 .water {
@@ -80,12 +79,12 @@ linear-gradient(
  linear-gradient(142deg,rgba(110, 110, 110, 1) 0%, rgba(23, 23, 23, 1) 13%, rgba(51, 51, 51, 1) 46%, rgba(28, 28, 28, 1) 83%, rgba(10, 0, 0, 1) 100%);
 }
 
-@keyframes shift {
-  from {
+/* Rename the keyframes to match */
+@keyframes spiritRootShift {
+  0% {
     background-position: 0% 50%;
   }
-
-  to {
+  100% {
     background-position: 100% 50%;
   }
 }

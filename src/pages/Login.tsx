@@ -66,8 +66,9 @@ function Login() {
     <main className="login-page">
       <FlashMessage />
       <section className="login-visual" aria-label="VastWorld account login">
-        <a className="login-brand" href="/"></a>
-        VastWorld
+        <a className="login-brand" href="/">
+          VastWorld
+        </a>
         <div className="login-copy">
           <p className="eyebrow">Player access</p>
           <h1>Continue your journey.</h1>
