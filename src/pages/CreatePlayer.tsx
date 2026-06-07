@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type JSX } from "react";
+import { useEffect, useState, type FormEvent, type JSX } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import FlashMessage from "../components/FlashMessage";
 import {
@@ -10,7 +10,7 @@ import { setFlashMessage } from "../hooks/flashMessage";
 import { sleep } from "../hooks/sleep";
 import type { ServiceResult } from "../types/ServiceResult";
 import styles from "../assets/css/createPlayerGame.module.css";
-import { useExistingPlayer } from "../hooks/checkPlayer";
+import { useExistingPlayer, usePlayerSpiritRoot } from "../hooks/checkPlayer";
 import type { PlayerResponse } from "../types/PlayerResponse";
 import "../assets/css/spiritRoots.css";
 import {
@@ -26,8 +26,6 @@ import {
   DarkSpiritRoot,
 } from "../components/SpiritRoots";
 import type { RollSpiritRootResponse } from "../types/RollSpiritRootResponse";
-
-// ─── Spirit root map ──────────────────────────────────────────────────────────
 
 const SPIRIT_ROOT_MAP: Record<string, () => JSX.Element> = {
   // English keys
@@ -54,18 +52,6 @@ const SPIRIT_ROOT_MAP: Record<string, () => JSX.Element> = {
   quang: LightSpiritRoot,
   ám: DarkSpiritRoot,
 };
-
-// ─── Orb wrapper — picks the right entrance class per position ────────────────
-//
-// Animation strategy:
-//   index 0              → orbEnter       (rises from below, white flash)
-//   index 1, isVariant   → orbVariantSecondary (orbits around first orb, slams in)
-//   index 2, isVariant   → orbVariantTertiary  (spiral from opposite side)
-//   index 1–2, normal    → orbEnter with stagger delay
-//   index 3–4            → orbEnterFast   (quick drop, less fanfare)
-//
-// display:inline-block on the wrapper is critical — display:contents would
-// make filter/transform no-ops, so animations wouldn't be visible.
 
 function OrbWrapper({
   name,
@@ -101,7 +87,6 @@ function OrbWrapper({
     delay = `${index * 0.15}s`;
   }
 
-  // Update the return statement here:
   return (
     <span
       key={`${revealKey}-${name}`}
@@ -116,17 +101,7 @@ function OrbWrapper({
   );
 }
 
-// ─── Rarity helpers ───────────────────────────────────────────────────────────
-
 type Rarity = "legendary" | "epic" | "normal";
-
-function getRarity(roll: RollSpiritRootResponse): Rarity {
-  if (roll.isVariantRoll) return "epic";
-  if (roll.spiritRoots.length === 1) return "legendary";
-  if (roll.spiritRoots.length >= 2 && roll.spiritRoots.length <= 3)
-    return "epic";
-  return "normal";
-}
 
 const RARITY_LABELS: Record<Rarity, string> = {
   legendary: "✦  Thiên linh căn  ✦",
@@ -140,19 +115,15 @@ const RARITY_CLASS: Record<Rarity, string> = {
   normal: styles.rarityNormal,
 };
 
-// ─── Spirit Root Roll Phase ───────────────────────────────────────────────────
-
-interface SpiritRootRollPhaseProps {
-  playerId: string;
-  token: string;
-  baseUrl: string;
-}
-
 function SpiritRootRollPhase({
   playerId,
   token,
   baseUrl,
-}: SpiritRootRollPhaseProps) {
+}: {
+  playerId: string;
+  token: string;
+  baseUrl: string;
+}) {
   const navigate = useNavigate();
 
   const [isRolling, setIsRolling] = useState(false);
@@ -203,21 +174,32 @@ function SpiritRootRollPhase({
 
   const remainingRolls = rollResult?.remainingRollNum ?? null;
   const canRollAgain = remainingRolls === null || remainingRolls > 0;
-  const rarity = rollResult ? getRarity(rollResult) : null;
+  let rarity: Rarity | null = null;
+
+  if (rollResult) {
+    const count = rollResult.spiritRoots.length;
+    rarity =
+      rollResult.isVariantRoll || (count >= 2 && count <= 3)
+        ? "epic"
+        : count === 1
+          ? "legendary"
+          : "normal";
+  }
 
   return (
     <div className={`${styles.card} ${styles.cardWide}`}>
       <div className={styles.cardHeader}>
-        <p className={styles.eyebrow}>Spirit Root</p>
-        <h2 id="create-player-title">Awaken your spirit root</h2>
+        <p className={styles.eyebrow}>Linh căn</p>
+        <h2 id="create-player-title">Tìm ra linh căn của bạn</h2>
       </div>
 
       <p className={styles.rollDescription}>
-        Before entering VastWorld, you must awaken your spirit root — the
-        elemental affinity that defines your path as a cultivator.
+        Trước khi bước vào Đại thiên thế giới, bạn phải thức tỉnh linh căn của
+        mình — thiên phú nguyên tố quyết định con đường tu luyện của bạn với tư
+        cách là một tu sĩ.
       </p>
 
-      {isRolling && <p className={styles.scanning}>Scanning heavenly fate…</p>}
+      {isRolling && <p className={styles.scanning}>Truy tìm đạo vận..</p>}
 
       {rollResult !== null && !isRolling && rarity && (
         <div
@@ -279,7 +261,7 @@ function SpiritRootRollPhase({
             type="button"
             onClick={handleContinue}
           >
-            Accept &amp; continue
+            Chọn &amp; tiếp tục
           </button>
         )}
       </div>
@@ -300,9 +282,20 @@ function CreatePlayer() {
   const [createdPlayerId, setCreatedPlayerId] = useState<string | null>(null);
 
   const { player, loading, error } = useExistingPlayer();
-
+  const { spiritRoots, loading: rootsLoading } = usePlayerSpiritRoot();
   const token = getAuthToken();
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+  useEffect(() => {
+    if (player && spiritRoots !== null) {
+      const needsToRoll = spiritRoots.length === 0;
+
+      if (needsToRoll) {
+        setCreatedPlayerId(player.id);
+        setPhase("roll");
+      }
+    }
+  }, [player, spiritRoots]);
 
   if (!isAuthenticated()) {
     return <Navigate to="/login" replace />;
@@ -352,7 +345,11 @@ function CreatePlayer() {
       <FlashMessage />
 
       <section className={styles.panel} aria-labelledby="create-player-title">
-        {phase === "roll" && createdPlayerId ? (
+        {(loading || (player && rootsLoading)) && phase === "create" ? (
+          <div className={styles.card}>
+            <p className={styles.messageNeutral}>Tìm tu tiên giả..</p>
+          </div>
+        ) : phase === "roll" && createdPlayerId ? (
           <SpiritRootRollPhase
             playerId={createdPlayerId}
             token={token ?? ""}
@@ -361,17 +358,14 @@ function CreatePlayer() {
         ) : (
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <p className={styles.eyebrow}>First character</p>
-              <h2 id="create-player-title">Create player</h2>
+              <h2 id="create-player-title">Tạo tu tiên giả</h2>
             </div>
 
             {loading ? (
-              <p className={styles.messageNeutral}>Checking your player…</p>
+              <p className={styles.messageNeutral}>Tìm tu tiên giả..</p>
             ) : player ? (
               <div className={styles.form}>
-                <p className={styles.messageNeutral}>
-                  A player already exists.
-                </p>
+                <p className={styles.messageNeutral}>Player đã tồn tại</p>
                 <button
                   className={`${styles.btn} ${styles.btnPrimary}`}
                   type="button"
