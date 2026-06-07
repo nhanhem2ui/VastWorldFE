@@ -3,13 +3,33 @@ import type { AuthResponse } from "../types/AuthResponse";
 const AUTH_SESSION_KEY = "vastworld.auth";
 const JWT_KEY = "vastworld.jwt";
 
-export type StoredUser = Pick<AuthResponse, "userID" | "username" | "email" | "role">;
+export type StoredUser =
+  Pick<AuthResponse,
+  "userID" |
+  "username" |
+  "email" |
+  "role"
+  > & {
+
+  playerID?: string;
+};
 
 export type AuthSession = {
   token: string;
   expiresIn: number;
   user: StoredUser;
 };
+
+export function savePlayerID(playerID:string){
+  const session = getAuthSession();
+  if (!session) return;
+
+  session.user.playerID = playerID;
+  const storage = window.localStorage.getItem(AUTH_SESSION_KEY) ? window.localStorage : window.sessionStorage;
+
+  storage.setItem(AUTH_SESSION_KEY, JSON.stringify(session)
+  );
+}
 
 export function saveAuthSession(auth: AuthResponse, remember: boolean) {
   const storage = remember ? window.localStorage : window.sessionStorage;
