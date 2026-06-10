@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { popFlashMessage } from "../hooks/flashMessage";
+import { popFlashMessage } from "@/shared/hooks/flashMessage";
 import "../assets/css/flashMessage.css";
 function FlashMessage() {
   const [message, setMessage] = useState("");

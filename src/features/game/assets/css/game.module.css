@@ -34,19 +34,27 @@
 
 .character {
   position: absolute;
-  bottom: 0;
+  bottom: 5rem;
   left: 50%;
   transform: translateX(-50%);
   height: 80%;
   max-height: 700px;
-  width: auto;
+  width: 400px;
   object-fit: contain;
   z-index: 1;
 }
 
+.spinningOrb{
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: auto;
+  z-index: 2;
+  top: 50%;
+}
+
 @media (max-width: 768px) {
   .character {
-    height: 65%;
     max-height: 500px;
   }
 }

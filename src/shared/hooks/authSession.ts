@@ -1,4 +1,4 @@
-import type { AuthResponse } from "../types/AuthResponse";
+import type { AuthResponse } from "@/features/auth/types/AuthResponse";
 
 const AUTH_SESSION_KEY = "vastworld.auth";
 const JWT_KEY = "vastworld.jwt";
@@ -29,6 +29,14 @@ export function savePlayerID(playerID:string){
 
   storage.setItem(AUTH_SESSION_KEY, JSON.stringify(session)
   );
+}
+
+export function getPlayerID(): string | null {
+  const session = getAuthSession();
+
+  if (!session) return null;
+
+  return session.user.playerID ?? null;
 }
 
 export function saveAuthSession(auth: AuthResponse, remember: boolean) {

@@ -1,9 +1,9 @@
 import { Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Game from "./pages/Game";
-import CreatePlayer from "./pages/CreatePlayer";
+import Home from "@/pages/Home";
+import Login from "@/features/auth/pages/Login";
+import Register from "@/features/auth/pages/Register";
+import Game from "@/features/game/pages/Game";
+import CreatePlayer from "@/features/playerCreation/pages/CreatePlayer";
 
 function App() {
   return (

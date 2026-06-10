@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { isAuthenticated } from "../hooks/authSession";
-import Logout from "../hooks/logout";
+import { isAuthenticated } from "@/shared/hooks/authSession";
+import Logout from "@/features/auth/hooks/logout";
 
 function Navbar() {
   let navigate = useNavigate();

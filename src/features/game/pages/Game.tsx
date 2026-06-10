@@ -1,18 +1,18 @@
 import { Navigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import { useExistingPlayer } from "../hooks/checkPlayer";
-import { setFlashMessage } from "../hooks/flashMessage";
+import { useExistingPlayer } from "@/shared/hooks/checkPlayer";
+import { setFlashMessage } from "@/shared/hooks/flashMessage";
 import { useState, useEffect } from "react";
 import styles from "../assets/css/game.module.css";
+import { PlayerStatsPanel } from "../components/PlayerStatsPanel";
 
 const DESKTOP_BACKGROUNDS = [
-  "../img/places/desktop/bg1.png",
-  "../img/places/desktop/bg2.png",
+  "src/shared/assets/img/places/desktop/bg1.png",
+  "src/shared/assets/img/places/desktop/bg2.png",
 ];
 
 const MOBILE_BACKGROUNDS = [
-  "../img/places/mobile/bg1_mobile.png",
-  "../img/places/mobile/bg2_mobile.png",
+  "src/shared/assets/img/places/mobile/bg1_mobile.png",
+  "src/shared/assets/img/places/mobile/bg2_mobile.png",
 ];
 
 function useIsMobile() {
@@ -48,12 +48,12 @@ function Game() {
   const backgrounds = isMobile ? MOBILE_BACKGROUNDS : DESKTOP_BACKGROUNDS;
   const bgSrc = backgrounds[bgIndex % backgrounds.length];
   const charSrc = player.gender
-    ? "../img/char/m_default.png"
-    : "../img/char/f_default.png";
+    ? "src/shared/assets/img/char/m_obs.png"
+    : "src/shared/assets/img/char/f_obs.png";
+  const spinningOrb = "src/shared/assets/animation/spinningOrb.gif";
 
   return (
     <section className={styles.main}>
-      <Navbar />
       <div className={styles.mainVisual}>
         <img
           className={styles.background}
@@ -61,11 +61,18 @@ function Game() {
           alt=""
           aria-hidden="true"
         />
-        <img
-          className={styles.character}
-          src={charSrc}
-          alt={player.gender ? "Male character" : "Female character"}
-        />
+        <div>
+          <img
+            className={styles.character}
+            src={charSrc}
+            alt={player.gender ? "Male character" : "Female character"}
+          />
+          <img className={styles.spinningOrb} src={spinningOrb}></img>
+        </div>
+      </div>
+
+      <div className={styles.hud}>
+        <PlayerStatsPanel player={player} />
       </div>
     </section>
   );

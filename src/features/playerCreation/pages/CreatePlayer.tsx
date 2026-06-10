@@ -1,57 +1,22 @@
 import { useEffect, useState, type FormEvent, type JSX } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import FlashMessage from "../components/FlashMessage";
+import FlashMessage from "@/shared/components/FlashMessage";
 import {
   getAuthToken,
   getStoredUser,
   isAuthenticated,
-} from "../hooks/authSession";
-import { setFlashMessage } from "../hooks/flashMessage";
-import { sleep } from "../hooks/sleep";
-import type { ServiceResult } from "../types/ServiceResult";
+} from "@/shared/hooks/authSession";
+import { setFlashMessage } from "@/shared/hooks/flashMessage";
+import { sleep } from "@/shared/hooks/sleep";
+import type { ServiceResult } from "@/types/ServiceResult";
 import styles from "../assets/css/createPlayerGame.module.css";
-import { useExistingPlayer, usePlayerSpiritRoot } from "../hooks/checkPlayer";
-import type { PlayerResponse } from "../types/PlayerResponse";
-import "../assets/css/spiritRoots.css";
 import {
-  MetalSpiritRoot,
-  WoodSpiritRoot,
-  WaterSpiritRoot,
-  FireSpiritRoot,
-  EarthSpiritRoot,
-  WindSpiritRoot,
-  LightningSpiritRoot,
-  IceSpiritRoot,
-  LightSpiritRoot,
-  DarkSpiritRoot,
-} from "../components/SpiritRoots";
-import type { RollSpiritRootResponse } from "../types/RollSpiritRootResponse";
-
-const SPIRIT_ROOT_MAP: Record<string, () => JSX.Element> = {
-  // English keys
-  metal: MetalSpiritRoot,
-  wood: WoodSpiritRoot,
-  water: WaterSpiritRoot,
-  fire: FireSpiritRoot,
-  earth: EarthSpiritRoot,
-  wind: WindSpiritRoot,
-  lightning: LightningSpiritRoot,
-  ice: IceSpiritRoot,
-  light: LightSpiritRoot,
-  dark: DarkSpiritRoot,
-
-  // Vietnamese keys
-  kim: MetalSpiritRoot,
-  mộc: WoodSpiritRoot,
-  thủy: WaterSpiritRoot,
-  hỏa: FireSpiritRoot,
-  thổ: EarthSpiritRoot,
-  phong: WindSpiritRoot,
-  lôi: LightningSpiritRoot,
-  băng: IceSpiritRoot,
-  quang: LightSpiritRoot,
-  ám: DarkSpiritRoot,
-};
+  useExistingPlayer,
+  usePlayerSpiritRoot,
+} from "@/shared/hooks/checkPlayer";
+import type { PlayerResponse } from "@/types/PlayerResponse";
+import type { RollSpiritRootResponse } from "@/types/RollSpiritRootResponse";
+import { SPIRIT_ROOT_MAP } from "@/shared/constants/spiritRootMap";
 
 function OrbWrapper({
   name,
@@ -206,7 +171,6 @@ function SpiritRootRollPhase({
           key={revealKey}
           className={`${styles.rarityBackdrop} ${RARITY_CLASS[rarity]}`}
         >
-          {/* Burst ring re-fires on every new reveal via key remount */}
           <div className={styles.burst} />
 
           {rollResult.isVariantRoll ? (
@@ -268,8 +232,6 @@ function SpiritRootRollPhase({
     </div>
   );
 }
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
 
 type Phase = "create" | "roll";
 
