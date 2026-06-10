@@ -1,10 +1,10 @@
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { getAuthToken, getStoredUser, savePlayerID } from "./authSession";
 
-import type { ServiceResult } from "../types/ServiceResult";
-import type { PlayerResponse } from "../types/PlayerResponse";
-import type { PlayerSpiritRootResponse } from "../types/PlayerSpiritRootResponse";
+import type { ServiceResult } from "@/types/ServiceResult";
+import type { PlayerResponse } from "@/types/PlayerResponse";
+import type { PlayerSpiritRootResponse } from "@/types/PlayerSpiritRootResponse";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -19,15 +19,7 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
     );
   }
 
-  if (user.playerID){
-
-    return {
-      id:user.playerID
-    } as PlayerResponse;
-
-  }
-
-  const response =await fetch(`${baseUrl}/api/players?id=${encodeURIComponent(user.userID)}`,
+  const response = await fetch(`${baseUrl}/api/players/${encodeURIComponent(user.playerID ?? "")}`,
       {
         headers:{
           "Content-Type":"application/json",
@@ -49,15 +41,14 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
 
 export function useExistingPlayer() {
 
-  const [player,setPlayer] =useState<PlayerResponse | null>(null);
-  const [loading,setLoading] =useState(true);
-  const [error,setError] =useState("");
+  const [player,setPlayer] = useState<PlayerResponse | null>(null);
+  const [loading,setLoading] = useState(true);
+  const [error,setError] = useState("");
 
   useEffect(()=>{
     async function load(){
       try{
-        const player =
-          await fetchPlayer();
+        const player = await fetchPlayer();
         setPlayer(player);
       } catch(error){
 

@@ -1,0 +1,36 @@
+import {
+  MetalSpiritRoot,
+  WoodSpiritRoot,
+  WaterSpiritRoot,
+  FireSpiritRoot,
+  EarthSpiritRoot,
+  WindSpiritRoot,
+  LightningSpiritRoot,
+  IceSpiritRoot,
+  LightSpiritRoot,
+  DarkSpiritRoot,
+} from "@/shared/components/SpiritRoots";
+import type { JSX } from "react";
+
+export const SPIRIT_ROOT_MAP: Record<string, () => JSX.Element> = {
+  metal: MetalSpiritRoot,
+  kim: MetalSpiritRoot,
+  wood: WoodSpiritRoot,
+  mộc: WoodSpiritRoot,
+  water: WaterSpiritRoot,
+  thủy: WaterSpiritRoot,
+  fire: FireSpiritRoot,
+  hỏa: FireSpiritRoot,
+  earth: EarthSpiritRoot,
+  thổ: EarthSpiritRoot,
+  wind: WindSpiritRoot,
+  phong: WindSpiritRoot,
+  lightning: LightningSpiritRoot,
+  lôi: LightningSpiritRoot,
+  ice: IceSpiritRoot,
+  băng: IceSpiritRoot,
+  light: LightSpiritRoot,
+  quang: LightSpiritRoot,
+  dark: DarkSpiritRoot,
+  ám: DarkSpiritRoot,
+};

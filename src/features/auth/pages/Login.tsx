@@ -1,11 +1,14 @@
 import { useState, type FormEvent } from "react";
-import type { ServiceResult } from "../types/ServiceResult";
+import type { ServiceResult } from "@/types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
-import { isAuthenticated, saveAuthSession } from "../hooks/authSession";
+import {
+  isAuthenticated,
+  saveAuthSession,
+} from "../../../shared/hooks/authSession";
 import { Navigate, useNavigate } from "react-router-dom";
-import { sleep } from "../hooks/sleep";
-import FlashMessage from "../components/FlashMessage";
-import { setFlashMessage } from "../hooks/flashMessage";
+import { sleep } from "@/shared/hooks/sleep";
+import FlashMessage from "@/shared/components/FlashMessage";
+import { setFlashMessage } from "@/shared/hooks/flashMessage";
 
 function Login() {
   const navigate = useNavigate();

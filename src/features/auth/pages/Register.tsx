@@ -1,11 +1,11 @@
 import { useState, type FormEvent } from "react";
-import type { ServiceResult } from "../types/ServiceResult";
+import type { ServiceResult } from "@/types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
 import { Navigate, useNavigate } from "react-router-dom";
-import { isAuthenticated } from "../hooks/authSession";
-import { sleep } from "../hooks/sleep";
-import { setFlashMessage } from "../hooks/flashMessage";
-import FlashMessage from "../components/FlashMessage";
+import { isAuthenticated } from "../../../shared/hooks/authSession";
+import { sleep } from "@/shared/hooks/sleep";
+import { setFlashMessage } from "@/shared/hooks/flashMessage";
+import FlashMessage from "@/shared/components/FlashMessage";
 
 function Register() {
   const navigate = useNavigate();

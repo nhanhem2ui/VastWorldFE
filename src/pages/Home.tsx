@@ -1,7 +1,7 @@
 import "../App.css";
-import CurrentStatus from "../components/CurrentStatus";
-import FlashMessage from "../components/FlashMessage";
-import Navbar from "../components/Navbar";
+import CurrentStatus from "@/shared/components/CurrentStatus";
+import FlashMessage from "@/shared/components/FlashMessage";
+import Navbar from "@/shared/components/Navbar";
 
 const highlights = [
   {
