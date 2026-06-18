@@ -5,14 +5,14 @@ export interface PlayerResponse{
   accountEmail: string;
 
   realmId: number;
-  realmName: string;
+  realmName: string; //do not use
 
   gender: boolean;
 
   rollNum: number;
 
   realmStage: number;
-  realmStageName: string;
+  realmStageName: string; //do not use
 
   hp: number;
   attack: number;

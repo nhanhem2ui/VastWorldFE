@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { getAuthToken, getStoredUser, savePlayerID } from "./authSession";
+import { getAuthToken, getStoredUser } from "./authSession";
 
 import type { ServiceResult } from "@/types/ServiceResult";
 import type { PlayerResponse } from "@/types/PlayerResponse";
@@ -19,6 +19,7 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
     );
   }
 
+  console.log(user);
   const response = await fetch(`${baseUrl}/api/players/${encodeURIComponent(user.playerID ?? "")}`,
       {
         headers:{
@@ -34,39 +35,8 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
       "Player not found."
     );
   }
-  savePlayerID(result.data.id);
 
   return result.data;
-}
-
-export function useExistingPlayer() {
-
-  const [player,setPlayer] = useState<PlayerResponse | null>(null);
-  const [loading,setLoading] = useState(true);
-  const [error,setError] = useState("");
-
-  useEffect(()=>{
-    async function load(){
-      try{
-        const player = await fetchPlayer();
-        setPlayer(player);
-      } catch(error){
-
-        setError(
-          error instanceof Error? error.message: "Could not load player."
-        );
-      } finally{
-        setLoading(false);
-      }
-    }
-    load();
-  },[]);
-
-  return {
-    player,
-    loading,
-    error,
-  };
 }
 
 export function usePlayerSpiritRoot() {
