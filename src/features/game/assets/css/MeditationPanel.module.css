@@ -1,0 +1,436 @@
+@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap");
+
+/* ── Panel shell ─────────────────────────────────────────────── */
+.panel {
+  background-image: url(/src/shared/assets/img/common/gray-golden.png);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: absolute;
+  left: 18vw;
+  bottom: 1vh;
+  width: 270px;
+  min-width: 220px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: calc(100vh - 5rem);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(212, 168, 67, 0.15) transparent;
+}
+
+/* ── Shared typography ───────────────────────────────────────── */
+.dimText {
+  font-family: serif;
+  font-style: normal;
+  font-size: 1.3rem;
+  color: black;
+}
+.errorText {
+  font-family: "IM Fell English", serif;
+  font-style: normal;
+  font-size: 1rem;
+  color: #ff0000;
+  padding: 0.5rem 1.3rem;
+  margin: 0;
+}
+
+.idleText {
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: #ffba3c;
+  text-align: center;
+  margin: 0;
+  animation: dotBlink 4s ease-in-out infinite;
+  line-height: 1.6;
+}
+
+/* ── Claimed state ───────────────────────────────────────────── */
+.claimedState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.6rem 1.3rem 1.4rem;
+}
+.claimedGlyph {
+  font-size: 2rem;
+  color: rgba(212, 168, 67, 0.5);
+  line-height: 1;
+}
+.claimedText {
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.82rem;
+  color: #8a7d65;
+  margin: 0;
+  text-align: center;
+}
+.durationPicker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0;
+}
+
+.durationDisplay {
+  font-family: "Cinzel", serif;
+  font-size: 1rem;
+  color: #d4a843;
+  text-align: center;
+  text-shadow: 0 0 8px rgba(212, 168, 67, 0.3);
+  letter-spacing: 0.05em;
+  background: rgba(0, 0, 0, 0.563);
+  padding: 0.25rem 0;
+  border-radius: 2px;
+  border: 1px solid rgba(180, 140, 60, 0.1);
+}
+
+.durationSeparator {
+  color: rgba(138, 125, 101, 0.5);
+  margin: 0 0.3rem;
+}
+
+.sliderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.2rem;
+}
+
+.sliderRow {
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.sliderLabel {
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #ffe000;
+}
+
+.durationSlider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(180, 140, 60, 0.15);
+  border-radius: 1px;
+  outline: none;
+  cursor: pointer;
+}
+
+.durationSlider:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Custom Chinese-fantasy themed handle for Chrome/Safari/Edge/Opera */
+.durationSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 8px;
+  height: 14px;
+  background: #d4a843;
+  border: 1px solid #f0cc6a;
+  clip-path: polygon(50% 0%, 100% 35%, 100% 100%, 0% 100%, 0% 35%);
+  box-shadow: 0 0 6px rgba(212, 168, 67, 0.6);
+  transition: transform 0.1s, background-color 0.1s;
+}
+
+.durationSlider:not(:disabled)::-webkit-slider-thumb:hover {
+  background: #f0cc6a;
+  transform: scale(1.15);
+}
+
+/* Handle for Firefox */
+.durationSlider::-moz-range-thumb {
+  width: 8px;
+  height: 14px;
+  background: #d4a843;
+  border: 1px solid #f0cc6a;
+  clip-path: polygon(50% 0%, 100% 35%, 100% 100%, 0% 100%, 0% 35%);
+  box-shadow: 0 0 6px rgba(212, 168, 67, 0.6);
+  border-radius: 0;
+  transition: transform 0.1s, background-color 0.1s;
+  cursor: pointer;
+}
+
+.durationSlider:not(:disabled)::-moz-range-thumb:hover {
+  background: #f0cc6a;
+  transform: scale(1.15);
+}
+/* ── Active session ──────────────────────────────────────────── */
+.activeState {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  padding: 1.1rem 1.3rem 1.3rem;
+}
+
+/* Time row */
+.timeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.timeLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: fangsong;
+  font-size: 1rem;
+  color: ghostwhite;
+  letter-spacing: 0.04em;
+}
+
+.timeDot {
+  background: url('src/shared/assets/img/common/btn_lankun.jpg');
+  background-repeat: no-repeat;
+  background-size: cover;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgb(255 202 0);
+  animation: dotBlink 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.timeArrow {
+  flex: 1;
+  text-align: center;
+  color: rgb(216 252 65);
+  font-size: 0.75rem;
+}
+
+/* Progress bar */
+.progressTrack {
+  position: relative;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(180, 140, 60, 0.12);
+  overflow: visible;
+  border-radius: 1px;
+}
+.progressFill {
+  height: 100%;
+  background: #ffba00;
+  transition: width 1s linear;
+  position: relative;
+}
+.progressFill::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 10px;
+  background: #f0cc6a;
+  box-shadow: 0 0 6px rgba(240, 204, 106, 0.8);
+  border-radius: 1px;
+}
+.progressFillComplete {
+  background: linear-gradient(90deg, #3a6030, #6ab44a 80%, #a0e070);
+}
+.progressFillComplete::after {
+  background: #a0e070;
+  box-shadow: 0 0 6px rgba(160, 224, 112, 0.8);
+}
+.progressLabel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 5px);
+  font-family: "Cinzel", serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.06em;
+  color: #6a5c40;
+}
+
+/* Stat grid */
+.statGrid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  row-gap: 0.32rem;
+  column-gap: 0.5rem;
+  margin: 0.4rem 0 0;
+}
+.statLabel {
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.8rem;
+  color: #8a7d65;
+  align-self: center;
+}
+.statValue {
+  font-family: "Cinzel", serif;
+  font-size: 0.74rem;
+  color: #e8dfc8;
+  text-align: right;
+  align-self: center;
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+.statValueGold {
+  color: #d4a843;
+  text-shadow: 0 0 8px rgba(212, 168, 67, 0.4);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
+.btnPrimary {
+  font-family: fangsong;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e8dfc8;
+  background: rgba(212, 168, 67, 0.1);
+  border: 1px solid rgba(212, 168, 67, 0.35);
+  padding: 0.55rem 1.1rem;
+  cursor: pointer;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  width: 100%;
+}
+.btnPrimary:hover:not(:disabled) {
+  background: rgba(212, 168, 67, 0.18);
+  border-color: rgba(212, 168, 67, 0.65);
+  color: #f0cc6a;
+}
+.btnPrimary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btnSecondary {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(180, 140, 60, 0.2);
+  color: #8a7d65;
+}
+.btnSecondary:hover:not(:disabled) {
+  background: rgba(212, 168, 67, 0.08);
+  border-color: rgba(212, 168, 67, 0.35);
+  color: #e8dfc8;
+}
+
+.btnClaim {
+  font-family: fangsong;
+  font-size: 0.8rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #1a1408;
+  background: linear-gradient(135deg, #c49a2a, #f0cc6a 50%, #c49a2a);
+  border: none;
+  padding: 0.6rem 1rem;
+  clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  box-shadow: 0 0 18px rgba(3, 3, 3, 0.35);
+  margin-top: 0.25rem;
+  width: 100%;
+  transition: opacity 0.2s;
+}
+.btnClaim:hover:not(:disabled) {
+  opacity: 0.88;
+}
+.btnClaim:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  animation: none;
+}
+
+/* Center the button within the states */
+.idleState, .claimedState {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers the round button horizontally */
+  gap: 1rem;
+  padding: 1.2rem;
+}
+
+/* ── Round Cultivate Button Base ── */
+.btnRoundCultivate {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: url('/src/shared/assets/img/common/cultivate.png') no-repeat center/cover; 
+  border: 2px solid #f0cc6a;
+  box-shadow: 0 0 15px rgba(212, 168, 67, 0.4), inset 0 0 8px rgba(0,0,0,0.4);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.2s;
+}
+
+/* Hover State: Subtle scale up and spin icon */
+.btnRoundCultivate:hover:not(:disabled) {
+  transform: scale(1.08);
+  box-shadow: 0 0 25px rgba(212, 168, 67, 0.7), inset 0 0 4px rgba(0,0,0,0.2);
+}
+
+/* ── THE CLICK ANIMATION ── */
+/* When active (clicked/pressed down), it shrinks slightly for physical feedback */
+.btnRoundCultivate:active:not(:disabled) {
+  transform: scale(0.92);
+  box-shadow: 0 0 10px rgba(212, 168, 67, 0.3);
+}
+
+.btnRoundCultivate:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: grayscale(80%);
+}
+
+.btnPulseRing {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #f0cc6a;
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  animation: cultivatePulseAmbient 3s infinite linear;
+}
+
+
+/* ── Keyframes ───────────────────────────────────────────────── */
+@keyframes dotBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@keyframes cultivatePulseAmbient {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .panel {
+    left: 0;
+    bottom: 20vh;
+    width: 100%;
+    max-height: 55vh;
+    clip-path: none;
+    border-left: none;
+    border-right: none;
+    border-top: 1px solid rgba(180, 140, 60, 0.22);
+  }
+
+}

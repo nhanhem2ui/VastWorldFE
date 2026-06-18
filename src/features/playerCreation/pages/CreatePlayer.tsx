@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent, type JSX } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import FlashMessage from "@/shared/components/FlashMessage";
 import {
@@ -10,13 +10,11 @@ import { setFlashMessage } from "@/shared/hooks/flashMessage";
 import { sleep } from "@/shared/hooks/sleep";
 import type { ServiceResult } from "@/types/ServiceResult";
 import styles from "../assets/css/createPlayerGame.module.css";
-import {
-  useExistingPlayer,
-  usePlayerSpiritRoot,
-} from "@/shared/hooks/checkPlayer";
+import { usePlayerSpiritRoot } from "@/shared/hooks/checkPlayer";
 import type { PlayerResponse } from "@/types/PlayerResponse";
 import type { RollSpiritRootResponse } from "@/types/RollSpiritRootResponse";
 import { SPIRIT_ROOT_MAP } from "@/shared/constants/spiritRootMap";
+import { usePlayer } from "@/shared/hooks/playerStore";
 
 function OrbWrapper({
   name,
@@ -243,7 +241,7 @@ function CreatePlayer() {
   const [phase, setPhase] = useState<Phase>("create");
   const [createdPlayerId, setCreatedPlayerId] = useState<string | null>(null);
 
-  const { player, loading, error } = useExistingPlayer();
+  const { player, loading, error } = usePlayer();
   const { spiritRoots, loading: rootsLoading } = usePlayerSpiritRoot();
   const token = getAuthToken();
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
