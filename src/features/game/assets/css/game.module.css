@@ -15,6 +15,13 @@
   position: relative;
 }
 
+.hud {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  z-index: 10;
+}
+
 .mainVisual {
   position: relative;
   flex: 1;
@@ -53,8 +60,114 @@
   top: 50%;
 }
 
+.statsPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;          
+  align-items: flex-start;
+  width: 270px; /* Explicitly matches panel specs to ensure predictable sliding */
+  transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  will-change: transform;
+}
+
+.statsPanelToggle {
+  position: absolute;
+  z-index: 11;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.statsPanelToggleOpen {
+  left: 280px; 
+  top: 10px;
+}
+
+.statsPanelToggleClose{
+  left: 0px;
+  top: 10px;
+}
+
+.statsPanelWrapper {
+  transition: transform 0.3s ease;
+}
+.statsPanelHidden {
+  transform: translateX(-105%);
+}
+
+.statsPanelVisible {
+  transform: translateX(0);
+}
+
+
+.statsPanelToggle img {
+  display: block;
+  width: 32px;
+  height: auto;
+}
+
 @media (max-width: 768px) {
   .character {
     max-height: 500px;
   }
+
+  /* Utility to clean up screen space if a menu is open */
+  .hiddenMobile {
+    display: none !important;
+  }
+
+  /* Dynamic container positioned neatly over the background canvas */
+  .mobilePanelContainer {
+    position: absolute;
+    inset: 0 0 60px 0; /* fills screen but leaves room for bottom nav */
+    padding: 1.5rem;
+    overflow-y: auto;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mobilePanelContent {
+    width: 100%;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  /* Tab bar locked to the bottom of the device viewport */
+  .mobileNavBar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #110e1a;
+    border-top: 1px solid #2a223d;
+    display: flex;
+    z-index: 20;
+  }
+
+  .mobileNavBar button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #a39eb3;
+    font-family: var(--game-font-display);
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .mobileNavBar .activeTab {
+    color: #ffd700; /* Gold highlight */
+    background: rgba(255, 215, 0, 0.05);
+    border-bottom: 3px solid #ffd700;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

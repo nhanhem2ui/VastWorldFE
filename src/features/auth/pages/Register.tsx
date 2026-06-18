@@ -9,12 +9,12 @@ import FlashMessage from "@/shared/components/FlashMessage";
 
 function Register() {
   const navigate = useNavigate();
+  const [message, setMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   if (isAuthenticated()) {
     return <Navigate to={"/"} replace />;
   }
-
-  const [message, setMessage] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -72,16 +72,13 @@ function SpiritRoots({ playerId }: { playerId: string }) {
 }
 
 export function PlayerStatsPanel({ player }: { player: PlayerResponse }) {
-  console.log("Player at panel");
-  console.log(player);
-  console.log(player.id);
   return (
     <aside className={styles.panel} aria-label="Player stats">
       {/* Identity */}
       <header className={styles.identity}>
         <p className={styles.eyebrow}>{player.realmName}</p>
-        <h2 className={styles.playerName}>{player.accountUsername}</h2>
         <p className={styles.stageName}>{player.realmStageName}</p>
+        <h2 className={styles.playerName}>{player.accountUsername}</h2>
       </header>
 
       {/* Spirit roots */}

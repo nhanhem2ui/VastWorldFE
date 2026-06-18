@@ -8,11 +8,9 @@ export type StoredUser =
   "userID" |
   "username" |
   "email" |
-  "role"
-  > & {
-
-  playerID?: string;
-};
+  "role" |
+  "playerID"
+  >;
 
 export type AuthSession = {
   token: string;
@@ -31,14 +29,6 @@ export function savePlayerID(playerID:string){
   );
 }
 
-export function getPlayerID(): string | null {
-  const session = getAuthSession();
-
-  if (!session) return null;
-
-  return session.user.playerID ?? null;
-}
-
 export function saveAuthSession(auth: AuthResponse, remember: boolean) {
   const storage = remember ? window.localStorage : window.sessionStorage;
   const otherStorage = remember ? window.sessionStorage : window.localStorage;
@@ -51,6 +41,7 @@ export function saveAuthSession(auth: AuthResponse, remember: boolean) {
       username: auth.username,
       email: auth.email,
       role: auth.role,
+      playerID: auth.playerID
     },
   };
 

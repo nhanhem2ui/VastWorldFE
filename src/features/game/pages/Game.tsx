@@ -1,9 +1,13 @@
 import { Navigate } from "react-router-dom";
-import { useExistingPlayer } from "@/shared/hooks/checkPlayer";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
 import { useState, useEffect } from "react";
 import styles from "../assets/css/game.module.css";
 import { PlayerStatsPanel } from "../components/PlayerStatsPanel";
+import { usePlayer } from "@/shared/hooks/playerStore";
+
+import btnMin from "@/shared/assets/img/common/btn_min.png";
+import btnFull from "@/shared/assets/img/common/btn_full.png";
+import { MeditationPanel } from "../components/MeditationPanel";
 
 const DESKTOP_BACKGROUNDS = [
   "src/shared/assets/img/places/desktop/bg1.png",
@@ -29,9 +33,15 @@ function useIsMobile() {
 }
 
 function Game() {
-  const { player, loading: playerLoading, error } = useExistingPlayer();
+  const { player, loading: playerLoading, error } = usePlayer();
   const isMobile = useIsMobile();
-  const [bgIndex] = useState(0); // swap this to cycle backgrounds
+  const [bgIndex] = useState(0);
+  const [showStatsPanel, setShowStatsPanel] = useState(true);
+
+  // 'main' shows character, 'stats' shows stats panel, 'cultivate' shows meditation panel
+  const [mobileView, setMobileView] = useState<"main" | "stats" | "cultivate">(
+    "main",
+  );
 
   if (playerLoading) return null;
 
@@ -54,7 +64,10 @@ function Game() {
 
   return (
     <section className={styles.main}>
-      <div className={styles.mainVisual}>
+      {/* Visual Canvas (Hidden on mobile if panels are taking full screen) */}
+      <div
+        className={`${styles.mainVisual} ${isMobile && mobileView !== "main" ? styles.hiddenMobile : ""}`}
+      >
         <img
           className={styles.background}
           src={bgSrc}
@@ -67,13 +80,91 @@ function Game() {
             src={charSrc}
             alt={player.gender ? "Male character" : "Female character"}
           />
-          <img className={styles.spinningOrb} src={spinningOrb}></img>
+          <img className={styles.spinningOrb} src={spinningOrb} alt=""></img>
         </div>
       </div>
 
-      <div className={styles.hud}>
-        <PlayerStatsPanel player={player} />
-      </div>
+      {/* DESKTOP HUD (Only renders/behaves traditionally on desktop) */}
+      {!isMobile && (
+        <div className={styles.hud}>
+          <div className={styles.hudLayoutContainer}>
+            <div
+              className={`${styles.statsPanel} ${
+                showStatsPanel
+                  ? styles.statsPanelVisible
+                  : styles.statsPanelHidden
+              }`}
+            >
+              <PlayerStatsPanel player={player} />
+              <MeditationPanel
+                playerId={player.id}
+                cultivationSpeed={player.cultivationSpeed}
+              />
+            </div>
+            <button
+              className={`${styles.statsPanelToggle} ${
+                showStatsPanel
+                  ? styles.statsPanelToggleOpen
+                  : styles.statsPanelToggleClose
+              }`}
+              onClick={() => setShowStatsPanel((v) => !v)}
+              aria-label={
+                showStatsPanel ? "Hide stats panel" : "Show stats panel"
+              }
+            >
+              <img
+                src={showStatsPanel ? btnMin : btnFull}
+                alt=""
+                aria-hidden="true"
+              />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* MOBILE HUD (Mutually exclusive panels to prevent overlapping) */}
+      {isMobile && (
+        <>
+          <div className={styles.mobilePanelContainer}>
+            {mobileView === "stats" && (
+              <div className={styles.mobilePanelContent}>
+                <PlayerStatsPanel player={player} />
+              </div>
+            )}
+
+            {mobileView === "cultivate" && (
+              <div className={styles.mobilePanelContent}>
+                <MeditationPanel
+                  playerId={player.id}
+                  cultivationSpeed={player.cultivationSpeed}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Navigation for Mobile */}
+          <nav className={styles.mobileNavBar}>
+            <button
+              className={mobileView === "main" ? styles.activeTab : ""}
+              onClick={() => setMobileView("main")}
+            >
+              View Game
+            </button>
+            <button
+              className={mobileView === "stats" ? styles.activeTab : ""}
+              onClick={() => setMobileView("stats")}
+            >
+              Stats
+            </button>
+            <button
+              className={mobileView === "cultivate" ? styles.activeTab : ""}
+              onClick={() => setMobileView("cultivate")}
+            >
+              Cultivate
+            </button>
+          </nav>
+        </>
+      )}
     </section>
   );
 }

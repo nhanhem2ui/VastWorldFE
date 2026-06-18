@@ -6,10 +6,16 @@ function FlashMessage() {
 
   useEffect(() => {
     const flash = popFlashMessage();
-    if (flash) {
-      setMessage(flash);
-      setTimeout(() => setMessage(""), 1000);
-    }
+
+    if (!flash) return;
+
+    setMessage(flash);
+
+    const timeoutId = setTimeout(() => {
+      setMessage("");
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   if (!message) return null;
