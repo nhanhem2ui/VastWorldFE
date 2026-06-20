@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { getAuthToken } from "@/shared/hooks/authSession";
 import styles from "../assets/css/meditationPanel.module.css";
 import type { ServiceResult } from "@/types/ServiceResult";
+import { refreshPlayer, usePlayer } from "@/shared/hooks/playerStore";
 
 interface GetPlayerMeditationByIdResponse {
   startTime: string; // LocalDateTime string
@@ -27,7 +28,6 @@ function useNow(intervalMs = 1000) {
   return now;
 }
 
-// ── FIXED: Hoisted out of parent to stop focus-loss and performance re-renders ──
 interface DurationPickerProps {
   durationMinutes: number;
   setDurationMinutes: (mins: number) => void;
@@ -108,6 +108,7 @@ export function MeditationPanel({
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState("");
   const [durationMinutes, setDurationMinutes] = useState(60);
+  const { player } = usePlayer();
   const now = useNow();
 
   const token = getAuthToken();
@@ -134,7 +135,7 @@ export function MeditationPanel({
     } finally {
       setLoading(false);
     }
-  }, [playerId, baseUrl, token]);
+  }, [playerId, token, player?.cultivationSpeed]);
 
   useEffect(() => {
     fetchMeditation();
@@ -178,6 +179,7 @@ export function MeditationPanel({
       setError(e instanceof Error ? e.message : "Lỗi không xác định.");
     } finally {
       setActionLoading(false);
+      refreshPlayer();
     }
   };
 
