@@ -8,6 +8,7 @@ import { usePlayer } from "@/shared/hooks/playerStore";
 import btnMin from "@/shared/assets/img/common/btn_min.png";
 import btnFull from "@/shared/assets/img/common/btn_full.png";
 import { MeditationPanel } from "../components/MeditationPanel";
+import { NextBreakthroughPanel } from "../components/NextBreakthroughPanel";
 
 const DESKTOP_BACKGROUNDS = [
   "src/shared/assets/img/places/desktop/bg1.png",
@@ -82,6 +83,15 @@ function Game() {
           />
           <img className={styles.spinningOrb} src={spinningOrb} alt=""></img>
         </div>
+
+        <NextBreakthroughPanel
+          playerId={player.id}
+          cultivationPoint={player.cultivationPoint}
+          onBreakthrough={() => {
+            // TODO: call the actual breakthrough endpoint, then refreshPlayer()
+            console.log("Start breakthrough");
+          }}
+        />
       </div>
 
       {/* DESKTOP HUD (Only renders/behaves traditionally on desktop) */}
