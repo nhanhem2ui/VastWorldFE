@@ -3,6 +3,7 @@ import { getAuthToken } from "@/shared/hooks/authSession";
 import styles from "../assets/css/meditationPanel.module.css";
 import type { ServiceResult } from "@/types/ServiceResult";
 import { refreshPlayer, usePlayer } from "@/shared/hooks/playerStore";
+import { setFlashMessage } from "@/shared/hooks/flashMessage";
 
 interface GetPlayerMeditationByIdResponse {
   startTime: string; // LocalDateTime string
@@ -158,6 +159,7 @@ export function MeditationPanel({
       );
       if (!res.ok) throw new Error("Không thể bắt đầu tu luyện.");
       await fetchMeditation();
+      setFlashMessage("Bắt đầu bế quan");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Lỗi không xác định.");
     } finally {
@@ -173,6 +175,8 @@ export function MeditationPanel({
         `${baseUrl}/api/player-meditations/claimMeditate/${playerId}`,
         { method: "POST", headers: { Authorization: `Bearer ${token}` } },
       );
+      setFlashMessage("Đã nhận được tu vi");
+
       if (!res.ok) throw new Error("Không thể nhận phần thưởng.");
       await fetchMeditation();
     } catch (e) {

@@ -110,6 +110,27 @@
   height: auto;
 }
 
+.breakthroughOverlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Higher than any HUD element */
+  animation: fadeIn 0.4s ease-out forwards;
+  cursor: pointer;
+}
+
+.breakthroughMedia {
+  max-width: 80%;
+  max-height: 80%;
+  object-fit: contain;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
+}
+
 @media (max-width: 768px) {
   .character {
     max-height: 500px;
@@ -165,6 +186,10 @@
     background: rgba(255, 215, 0, 0.05);
     border-bottom: 3px solid #ffd700;
   }
+  .breakthroughMedia {
+  max-width: 100%;
+  max-height: 100%;
+}
 }
 
 @keyframes fadeIn {
