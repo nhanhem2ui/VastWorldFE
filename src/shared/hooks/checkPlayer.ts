@@ -19,7 +19,6 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
     );
   }
 
-  console.log(user);
   const response = await fetch(`${baseUrl}/api/players/${encodeURIComponent(user.playerID ?? "")}`,
       {
         headers:{

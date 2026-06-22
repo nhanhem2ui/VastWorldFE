@@ -1,0 +1,17 @@
+.map {
+    display: grid;
+    grid-template-columns: repeat(10, 48px);
+    grid-template-rows: repeat(10, 48px);
+    gap: 2px;
+}
+
+.tile {
+    width: 48px;
+    height: 48px;
+    background: #90ee90;
+    border: 1px solid black;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
