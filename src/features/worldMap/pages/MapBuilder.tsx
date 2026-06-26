@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { initPixi } from "../components/initPixi";
 import { Application } from "pixi.js";
 
-export default function Map() {
+export default function MapBuilder() {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import Register from "@/features/auth/pages/Register";
 import Game from "@/features/game/pages/Game";
 import CreatePlayer from "@/features/playerCreation/pages/CreatePlayer";
 import Map from "./features/worldMap/pages/Map";
+import MapBuilder from "./features/worldMap/pages/MapBuilder";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/game" element={<Game />} />
       <Route path="/createPlayer" element={<CreatePlayer />} />
       <Route path="/map" element={<Map />} />
+      <Route path="/mapBuilder" element={<MapBuilder />} />
     </Routes>
   );
 }
