@@ -53,7 +53,7 @@ const fantasyTiles_PALETE = {
   const bamboo = await Assets.load("../src/shared/assets/img/decorations/bamboo_1.png");
   const fantasyTiles = Object.values(fantasySheet.textures);
   const cultivatorHome = await Assets.load("../src/shared/assets/img/buildings/cultivator-home.png")
-  
+  const blackSmith = await Assets.load("../src/shared/assets/img/buildings/smithingBuilding.png")
   const duckFrame1 = await Assets.load("../src/shared/assets/img/decorations/rubberDuck_1.png");
   const duckFrame2 = await Assets.load("../src/shared/assets/img/decorations/rubberDuck_2.png");
   const duckFrame3 = await Assets.load("../src/shared/assets/img/decorations/rubberDuck_3.png");
@@ -69,6 +69,7 @@ const trimAmount = 0.4;
       t.update(); 
     }
   });
+
 const RawRegistryConfigs: Record<string, SourceGroupConfig> = {
   defaultGrass: {
     defaults: {
@@ -437,10 +438,11 @@ const bambooPosition = [
   {x: 7, y: 3},
 ]
 
+const blackSmithPosition = {x: 4, y: 10};
+
 const rubberDuckPosition = [
     { x: 6, y: 5 },
 ]
-
 export async function initPixi(containerElement: HTMLDivElement) {
   const app = new Application();
 
@@ -540,6 +542,14 @@ export async function initPixi(containerElement: HTMLDivElement) {
         tree.y = pixelY;
         objectLayer.addChild(tree);
       }
+      
+      if(blackSmithPosition !== null && blackSmithPosition.x == x && blackSmithPosition.y === y){
+        const tree = new Sprite(blackSmith);
+        tree.anchor.set(0.5, 0.5); 
+        tree.x = pixelX;
+        tree.y = pixelY;
+        objectLayer.addChild(tree);
+      }
 
       const hasCultivatorHome = cultivatorHomePosition.some(t => t.x === x && t.y === y);
       if (hasCultivatorHome) {
@@ -627,5 +637,56 @@ if (hasRubberDuck) {
   app.stage.on("pointerup", () => isDragging = false);
   app.stage.on("pointerupoutside", () => isDragging = false);
 
-  return app;
+  function generateSql(mapId: number) {
+  const customLookup = new Map(
+    customGroundTiles.map(t => [`${t.x},${t.y}`, t])
+  );
+
+  const sql: string[] = [];
+
+  sql.push(`DELETE FROM MapTiles WHERE MapID = ${mapId};`);
+  sql.push("");
+
+  let first = true;
+
+  for (let x = 0; x < MAP_WIDTH; x++) {
+    for (let y = 0; y < MAP_HEIGHT; y++) {
+
+      const tile = customLookup.get(`${x},${y}`);
+
+      let assetId: number = 5;
+      let spriteFrame: number | null = null;
+
+      if (tile) {
+        if (tile.source === "fantasy") {
+          assetId = 4;
+          spriteFrame = Number(tile.id);
+        } else if (tile.source === "defaultGrass") {
+          if (tile.id === "lighter") {
+            assetId = 7;
+          }
+        }
+      }
+      if(first == true){
+      sql.push(
+        `INSERT INTO MapTiles (MapID,X,Y,AssetID,SpriteFrame) VALUES (${mapId},${x},${y},${assetId ?? "NULL"},${spriteFrame ?? "NULL"})`
+      );
+      first = false;
+    }
+    else{
+        sql.push(
+        `,(${mapId},${x},${y},${assetId ?? "NULL"},${spriteFrame ?? "NULL"})`
+      );
+    }
+    }
+  }
+  sql.push("GO", "");
+  
+  return sql.join("\n");
+}
+
+return {
+  app,
+  generateSql
+};
 }
