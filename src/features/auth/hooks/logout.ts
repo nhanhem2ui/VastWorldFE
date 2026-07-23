@@ -1,6 +1,7 @@
 import { clearAuthSession } from "../../../shared/hooks/authSession";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
 async function Logout(){
     const response = await fetch(`${baseUrl}/api/auth/logout`, {
         method: "POST",
