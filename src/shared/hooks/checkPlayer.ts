@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { getAuthToken, getStoredUser } from "./authSession";
+import { clearAuthSession, getAuthToken, getStoredUser } from "./authSession";
 
 import type { ServiceResult } from "@/types/ServiceResult";
 import type { PlayerResponse } from "@/types/PlayerResponse";
 import type { PlayerSpiritRootResponse } from "@/types/PlayerSpiritRootResponse";
+import { setFlashMessage } from "./flashMessage";
 
 const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -27,6 +28,12 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
         }
       }
     );
+
+  if (response.status === 403) {
+    clearAuthSession();
+    setFlashMessage("Session expired, please login again.")
+    window.location.href = "/login";
+  }
 
   const result: ServiceResult<PlayerResponse> = await response.json();
   if (!result.data){
