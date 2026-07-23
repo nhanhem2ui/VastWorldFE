@@ -1,11 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { Application } from "pixi.js";
 import { usePlayer } from "@/shared/hooks/playerStore";
 import { mapComponent } from "../components/mapComponent";
 import { Navigate } from "react-router-dom";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
 import { isAuthenticated } from "@/shared/hooks/authSession";
 import FlashMessage from "@/shared/components/FlashMessage";
+import type { MapComponentHandle, InteractableOfMap } from "../types/types";
+import styles from "../assets/css/Map.module.css";
+
+function labelForInteractable(type: InteractableOfMap["type"]): string {
+  const titleCased = type.charAt(0) + type.slice(1).toLowerCase();
+  return `Enter ${titleCased}`;
+}
 
 export default function Map() {
   const ref = useRef<HTMLDivElement>(null);
@@ -13,15 +19,12 @@ export default function Map() {
   const [mapError, setMapError] = useState<string | null>(null);
   const [travelError, setTravelError] = useState<string | null>(null);
   const [isTraveling, setIsTraveling] = useState(false);
+  const [activeInteractable, setActiveInteractable] =
+    useState<InteractableOfMap | null>(null);
 
-  if (player == null || !isAuthenticated) {
-    setFlashMessage("No player found");
-    <Navigate to={"/"} />;
-  }
-
+  const handleRef = useRef<MapComponentHandle | null>(null);
   const playerId = player?.id;
 
-  // Auto-dismiss travel errors after 3 s
   useEffect(() => {
     if (!travelError) return;
     const t = window.setTimeout(() => setTravelError(null), 3000);
@@ -31,11 +34,10 @@ export default function Map() {
   useEffect(() => {
     if (!ref.current || !playerId) return;
 
-    let appInstance: Application | null = null;
     let disposed = false;
-
     setMapError(null);
     setTravelError(null);
+    setActiveInteractable(null);
 
     mapComponent(ref.current, playerId, {
       onTravelStart: () => setIsTraveling(true),
@@ -44,13 +46,15 @@ export default function Map() {
         setIsTraveling(false);
         setTravelError(msg);
       },
+      onInteractableChange: (interactable) =>
+        setActiveInteractable(interactable),
     })
-      .then((app) => {
+      .then((handle) => {
         if (disposed) {
-          app.destroy(true, { children: true, texture: false });
+          handle.app.destroy(true, { children: true, texture: false });
           return;
         }
-        appInstance = app;
+        handleRef.current = handle;
       })
       .catch((err) => {
         if (!disposed) {
@@ -63,128 +67,75 @@ export default function Map() {
 
     return () => {
       disposed = true;
-      if (appInstance) {
-        appInstance.destroy(true, { children: true, texture: false });
-        appInstance = null;
+      if (handleRef.current) {
+        handleRef.current.app.destroy(true, { children: true, texture: false });
+        handleRef.current = null;
         console.log("[Map] Pixi application disposed.");
       }
     };
   }, [playerId]);
 
+  function handleEnterInteractable() {
+    const interactable = handleRef.current?.enterInteractable();
+    if (!interactable) return;
+    console.log("[Map] Entering interactable:", interactable);
+  }
+
   if (playerLoading) {
     return (
-      <div style={overlayStyle}>
-        <span style={overlayTextStyle}>Loading player…</span>
+      <div className={styles.overlay}>
+        <span className={styles.overlayText}>Loading player…</span>
       </div>
     );
   }
 
   if (playerError) {
     return (
-      <div style={overlayStyle}>
-        <span style={{ ...overlayTextStyle, color: "#e05252" }}>
-          Player error: {playerError}
-        </span>
+      <div className={styles.overlay}>
+        <span className={styles.errorText}>Player error: {playerError}</span>
       </div>
     );
   }
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "100%",
-        position: "relative",
-        border: "2px solid #333",
-      }}
-    >
+    <div className={styles.container}>
       <FlashMessage />
+
       {/* Pixi canvas */}
-      <div ref={ref} style={{ width: "100%", height: "100%" }} />
+      <div ref={ref} className={styles.canvas}>
+        {/* Traveling indicator */}
+        {isTraveling && (
+          <div className={styles.travelBanner}>
+            <span className={styles.travelDot} />
+            <span className={styles.overlayText}>Traveling…</span>
+          </div>
+        )}
 
-      {/* Traveling indicator — top-centre banner */}
-      {isTraveling && (
-        <div style={travelBannerStyle}>
-          <span style={travelDotStyle} />
-          <span style={overlayTextStyle}>Traveling…</span>
-        </div>
-      )}
+        {/* Travel error toast */}
+        {travelError && (
+          <div className={styles.toast}>
+            <span className={styles.toastErrorText}>{travelError}</span>
+          </div>
+        )}
 
-      {/* Travel error toast — bottom-centre */}
-      {travelError && (
-        <div style={toastStyle}>
-          <span
-            style={{
-              ...overlayTextStyle,
-              color: "#e05252",
-              fontSize: "0.85rem",
-            }}
+        {/* Enter interactable button */}
+        {activeInteractable && !isTraveling && (
+          <button
+            type="button"
+            onClick={handleEnterInteractable}
+            className={styles.enterButton}
           >
-            {travelError}
-          </span>
-        </div>
-      )}
+            {labelForInteractable(activeInteractable.type)}
+          </button>
+        )}
 
-      {/* Hard map load error */}
-      {mapError && (
-        <div style={{ ...overlayStyle, position: "absolute" }}>
-          <span style={{ ...overlayTextStyle, color: "#e05252" }}>
-            {mapError}
-          </span>
-        </div>
-      )}
+        {/* Hard map load error */}
+        {mapError && (
+          <div className={styles.overlayAbsolute}>
+            <span className={styles.errorText}>{mapError}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
-
-const overlayStyle: React.CSSProperties = {
-  width: "100%",
-  height: "100%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "#1d1d1d",
-};
-
-const overlayTextStyle: React.CSSProperties = {
-  fontFamily: "var(--game-font-body, serif)",
-  color: "#d4a843",
-  fontSize: "1rem",
-  letterSpacing: "0.05em",
-};
-
-const travelBannerStyle: React.CSSProperties = {
-  position: "absolute",
-  top: 14,
-  left: "50%",
-  transform: "translateX(-50%)",
-  display: "flex",
-  alignItems: "center",
-  gap: 8,
-  background: "rgba(13, 11, 8, 0.82)",
-  border: "1px solid #d4a843",
-  borderRadius: 4,
-  padding: "5px 14px",
-  pointerEvents: "none",
-};
-
-const travelDotStyle: React.CSSProperties = {
-  display: "inline-block",
-  width: 7,
-  height: 7,
-  borderRadius: "50%",
-  background: "#d4a843",
-  animation: "travelPulse 1s ease-in-out infinite",
-};
-
-const toastStyle: React.CSSProperties = {
-  position: "absolute",
-  bottom: 20,
-  left: "50%",
-  transform: "translateX(-50%)",
-  background: "rgba(13, 11, 8, 0.88)",
-  border: "1px solid #e05252",
-  borderRadius: 4,
-  padding: "6px 16px",
-  pointerEvents: "none",
-};

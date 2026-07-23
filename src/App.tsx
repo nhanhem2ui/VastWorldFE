@@ -5,7 +5,7 @@ import Register from "@/features/auth/pages/Register";
 import Game from "@/features/game/pages/Game";
 import CreatePlayer from "@/features/playerCreation/pages/CreatePlayer";
 import Map from "./features/worldMap/pages/Map";
-import MapBuilder from "./features/worldMap/pages/MapBuilder";
+import MapBuilder from "./features/mapBuilder/pages/MapBuilder";
 
 function App() {
   return (

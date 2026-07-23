@@ -1,4 +1,4 @@
-import { Application, Assets, Container, Sprite } from "pixi.js";
+import { Application, Assets, Container } from "pixi.js";
 import { initDevtools } from "@pixi/devtools";
 import { getAuthToken } from "@/shared/hooks/authSession";
 import type { ServiceResult } from "@/types/ServiceResult";
@@ -7,13 +7,19 @@ import { createSprite, createPlayerMarker, createDestinationRing } from "../hook
 import { hexToPixel, findNearestTile } from "../hooks/hexGeometry";
 import { bfsPath, smoothstep } from "../hooks/pathfinding";
 import { TRAVEL_MS_PER_TILE, HORIZONTAL_SPACING, HEX_WIDTH, VERTICAL_SPACING, PAN_PADDING, DRAG_THRESHOLD_SQ } from "../types/constaint";
-import type { MapComponentOptions, GetPlayerLocationResponse, GetMapResponse } from "../types/types";
+import type {
+  MapComponentOptions,
+  MapComponentHandle,
+  GetPlayerLocationResponse,
+  GetMapResponse,
+  InteractableOfMap,
+} from "../types/types";
 
 export async function mapComponent(
   containerElement: HTMLDivElement,
   playerId: string,
   options: MapComponentOptions = {}
-) {
+): Promise<MapComponentHandle> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
   const token = getAuthToken();
 
@@ -45,7 +51,7 @@ export async function mapComponent(
     },
   });
 
-  if (!mapRes.ok) 
+  if (!mapRes.ok)
     throw new Error(`Failed to load map ${playerPos.mapId} (${mapRes.status})`);
 
   const mapResponse: ServiceResult<GetMapResponse> = await mapRes.json();
@@ -53,16 +59,22 @@ export async function mapComponent(
   if (!mapResponse.success || !mapResponse.data) {
     throw new Error(mapResponse.message ?? "Failed to load map");
   }
-  
+
   const mapData = mapResponse.data;
-  const mapTiles = mapData.mapTiles;
+  const mapTiles = mapData.mapTiles ?? [];
   const mapDecorations = mapData.mapDecorations ?? [];
+  const mapInteractables = mapData.mapInteractable ?? [];
 
   // 3. Build pathfinding structures
   const validTileSet = new Set<string>(mapTiles.map((t) => `${t.x},${t.y}`));
   const tilePositionMap = new Map<string, { x: number; y: number }>(
     mapTiles.map((t) => [`${t.x},${t.y}`, { x: t.x, y: t.y }])
   );
+
+  // 3b. Build interactable lookup, keyed by "x,y"
+  const interactableMap = new Map<string, InteractableOfMap>(
+      mapInteractables.map((i) => [`${i.x},${i.y}`, i])
+    );
 
   // 4. Load all assets in parallel
   const allAssets = [...mapTiles, ...mapDecorations].map((t) => t.asset);
@@ -74,6 +86,8 @@ export async function mapComponent(
   await app.init({
     background: "#1d1d1d",
     resizeTo: containerElement,
+    resolution: window.devicePixelRatio || 1,
+    autoDensity: true,
     antialias: false,
   });
 
@@ -84,6 +98,7 @@ export async function mapComponent(
   const groundLayer = new Container();
   const objectLayer = new Container();
   const markerLayer = new Container();
+  
   app.stage.addChild(groundLayer);
   app.stage.addChild(objectLayer);
   app.stage.addChild(markerLayer);
@@ -113,8 +128,8 @@ export async function mapComponent(
   // 8. Player marker + destination ring
   const { px: markerPx, py: markerPy } = hexToPixel(playerPos.x, playerPos.y);
   const icon = await Assets.load("../src/shared/assets/img/char/round.png");
-  icon.source.scaleMode = 'linear';
-  icon.source.autoGenerateMipmaps = true;
+  icon.source.scaleMode = "nearest";
+  icon.source.autoGenerateMipmaps = false;
   const marker = createPlayerMarker(icon);
   marker.x = markerPx;
   marker.y = markerPy;
@@ -133,61 +148,11 @@ export async function mapComponent(
   let travelStepIndex = 0;
   let travelStepProgress = 0;
 
-  async function travelToHex(target: { x: number; y: number }) {
-    if (isTraveling || isRequesting) return;
-    if (target.x === currentHex.x && target.y === currentHex.y) return;
+  // tile player is currently standing on.
+  let activeInteractable: InteractableOfMap | null = null;
 
-    const { px: dPx, py: dPy } = hexToPixel(target.x, target.y);
-    destMarker.x = dPx;
-    destMarker.y = dPy;
-    destMarker.visible = true;
-    destMarker.alpha = 1;
-
-    isRequesting = true;
-    options.onTravelStart?.();
-
-    try {
-      const res = await fetch(`${baseUrl}/api/map/travel`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          playerId,
-          x: target.x,
-          y: target.y,
-          mapId: playerPos.mapId,
-        }),
-      });
-
-      const result: ServiceResult<null> = await res.json();
-      if (!res.ok || !result.success) {
-        throw new Error(result.message ?? `Travel failed (${res.status})`);
-      }
-
-      const path = bfsPath(currentHex, target, validTileSet);
-      if (!path || path.length < 2) {
-        currentHex = { ...target };
-        marker.x = dPx;
-        marker.y = dPy;
-        destMarker.visible = false;
-        options.onTravelEnd?.();
-        return;
-      }
-
-      travelPath = path;
-      travelStepIndex = 0;
-      travelStepProgress = 0;
-      isTraveling = true;
-    } catch (err) {
-      destMarker.visible = false;
-      const msg = err instanceof Error ? err.message : "Travel failed.";
-      options.onTravelError?.(msg);
-    } finally {
-      isRequesting = false;
-    }
-  }
+  // Check the player's starting tile immediately on load.
+  refreshInteractable(currentHex, interactableMap);
 
   // 10. Ticker loop
   let pulse = 0;
@@ -220,6 +185,7 @@ export async function mapComponent(
       const { px, py } = hexToPixel(dest.x, dest.y);
       marker.x = px;
       marker.y = py;
+      refreshInteractable(currentHex, interactableMap);
       options.onTravelEnd?.();
       return;
     }
@@ -288,5 +254,87 @@ export async function mapComponent(
 
   app.stage.on("pointerupoutside", () => (isDragging = false));
 
-  return app;
+
+  async function travelToHex(target: { x: number; y: number }) {
+    if (isTraveling || isRequesting) return;
+    if (target.x === currentHex.x && target.y === currentHex.y) return;
+
+    const { px: dPx, py: dPy } = hexToPixel(target.x, target.y);
+    destMarker.x = dPx;
+    destMarker.y = dPy;
+    destMarker.visible = true;
+    destMarker.alpha = 1;
+
+    isRequesting = true;
+    options.onTravelStart?.();
+
+    try {
+      const res = await fetch(`${baseUrl}/api/map/travel`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          playerId,
+          x: target.x,
+          y: target.y,
+          mapId: playerPos.mapId,
+        }),
+      });
+
+      const result: ServiceResult<null> = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message ?? `Travel failed (${res.status})`);
+      }
+
+      const path = bfsPath(currentHex, target, validTileSet);
+      if (!path || path.length < 2) {
+        currentHex = { ...target };
+        marker.x = dPx;
+        marker.y = dPy;
+        destMarker.visible = false;
+        refreshInteractable(currentHex, interactableMap);
+        options.onTravelEnd?.();
+        return;
+      }
+
+      travelPath = path;
+      travelStepIndex = 0;
+      travelStepProgress = 0;
+      isTraveling = true;
+      // Leaving the current tile — clear any active interactable right away
+      // so the "Enter X" button doesn't linger while the marker is mid-walk.
+      if (activeInteractable) {
+        activeInteractable = null;
+        options.onInteractableChange?.(null);
+      }
+    } catch (err) {
+      destMarker.visible = false;
+      const msg = err instanceof Error ? err.message : "Travel failed.";
+      options.onTravelError?.(msg);
+    } finally {
+      isRequesting = false;
+    }
+  }
+
+  function refreshInteractable(hex: { x: number; y: number; }, map: Map<string, InteractableOfMap>) {
+    const interactable = map.get(`${hex.x},${hex.y}`) ?? null;
+    // Only fire the callback when the tile's interactable actually changes,
+    // to avoid spamming React state updates every ticker frame.
+    const isTheSameTile =
+      (interactable?.type ?? null) === (activeInteractable?.type ?? null) ||
+      interactable?.x === activeInteractable?.x &&
+      interactable?.y === activeInteractable?.y;
+      
+    if (!isTheSameTile) {
+      activeInteractable = interactable;
+      options.onInteractableChange?.(interactable);
+    }
+  }
+
+  return {
+    app,
+    enterInteractable: () => activeInteractable,
+  };
 }
