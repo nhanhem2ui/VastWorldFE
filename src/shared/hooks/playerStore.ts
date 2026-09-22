@@ -1,6 +1,7 @@
 import { useSyncExternalStore, useEffect } from "react";
 import { fetchPlayer } from "@/shared/hooks/checkPlayer";
 import type { PlayerResponse } from "@/types/PlayerResponse";
+import { onSSE, holdConnection } from "./sseConnection";
 
 interface PlayerState {
   player: PlayerResponse | null;
@@ -12,17 +13,22 @@ let state: PlayerState = { player: null, loading: true, error: "" };
 let initialized = false;
 const listeners = new Set<() => void>();
 
-//internal
 function setState(patch: Partial<PlayerState>) {
   state = { ...state, ...patch };
   listeners.forEach(listener => listener());
 }
 
+onSSE("player-update", (data) => {
+  setState({ player: data as PlayerResponse, loading: false, error: "" });
+});
+
 function subscribe(onStoreChange: () => void) {
   listeners.add(onStoreChange);
-
-  //Cleanup (unsubscribe) function, when component unmounts
-  return () => listeners.delete(onStoreChange);
+  const releaseConnection = holdConnection(onStoreChange);
+  return () => {
+    listeners.delete(onStoreChange);
+    releaseConnection();
+  };
 }
 
 function getSnapshot(): PlayerState {
@@ -43,16 +49,12 @@ async function doLoad() {
   }
 }
 
-//api
-
-/** Call this after any mutation that changes player data. */
 export async function refreshPlayer() {
   initialized = false;
   await doLoad();
   initialized = true;
 }
 
-/** Wipe the store on logout. */
 export function resetPlayerStore() {
   state = { player: null, loading: true, error: "" };
   initialized = false;
@@ -67,7 +69,7 @@ export function usePlayer() {
       initialized = true;
       doLoad();
     }
-  }, []);
+  }, [player?.cultivationPoint, player?.cultivationSpeed]);
 
   return { player, loading, error, refreshPlayer };
 }
