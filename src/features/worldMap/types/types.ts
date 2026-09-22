@@ -65,3 +65,43 @@ export type MapComponentHandle = {
   app: import("pixi.js").Application;
   enterInteractable: () => InteractableOfMap | null;
 };
+
+
+//REGION
+export type GetPlayerRegionResponse = {
+  mapId: number;
+  regionId: number;
+};
+
+export type DecorationsOfRegion = {
+  mapId: number;
+  label: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  topHeight: number;
+  rightWidth: number;
+  bottomHeight: number;
+  leftWidth: number;
+  backgroundTexture: string;
+  textColor: string;
+};
+
+export type GetRegionResponse = {
+  name: string;
+  width: number;
+  height: number;
+  backgroundImage: string;
+  regionDecorations: DecorationsOfRegion[];
+};
+
+export type RegionComponentOptions = {
+  /** Fired when a decoration text box is clicked. Behavior TBD. */
+  onDecorationClick?: (decoration: DecorationsOfRegion) => void;
+  onError?: (message: string) => void;
+};
+
+export type RegionComponentHandle = {
+  app: import("pixi.js").Application;
+};

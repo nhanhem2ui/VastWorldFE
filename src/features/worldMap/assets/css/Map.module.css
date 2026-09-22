@@ -107,6 +107,24 @@
   z-index: 1000;
 }
 
+.viewToggleButton {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  font-family: var(--game-font-body, serif);
+  color: #1d1d1d;
+  background: #d4a843;
+  border: 1px solid #f0d27a;
+  border-radius: 4px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
 @keyframes travelPulse {
   0%, 100% { opacity: 0.4; transform: scale(0.9); }
   50% { opacity: 1; transform: scale(1.1); }
