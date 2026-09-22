@@ -2,7 +2,7 @@
 
 :root {
   --game-bg:     #05040a;
-  --game-font-display: "Cinzel", serif;
+  --game-font-display: fangsong;
   --game-font-body:    "IM Fell English", serif;
 }
 
@@ -17,9 +17,17 @@
 
 .hud {
   position: absolute;
-  top: 1rem;
-  left: 1rem;
+  inset: 0;
+  pointer-events: none;
   z-index: 10;
+}
+
+.hudLayoutContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
 }
 
 .mainVisual {
@@ -51,7 +59,7 @@
   z-index: 1;
 }
 
-.spinningOrb{
+.spinningOrb {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -65,9 +73,10 @@
   flex-direction: column;
   gap: 1rem;          
   align-items: flex-start;
-  width: 270px; /* Explicitly matches panel specs to ensure predictable sliding */
+  width: 270px;
   transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
   will-change: transform;
+  pointer-events: auto;
 }
 
 .statsPanelToggle {
@@ -80,6 +89,7 @@
   padding: 0;
   cursor: pointer;
   transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: auto;
 }
 
 .statsPanelToggleOpen {
@@ -87,7 +97,7 @@
   top: 10px;
 }
 
-.statsPanelToggleClose{
+.statsPanelToggleClose {
   left: 0px;
   top: 10px;
 }
@@ -95,6 +105,7 @@
 .statsPanelWrapper {
   transition: transform 0.3s ease;
 }
+
 .statsPanelHidden {
   transform: translateX(-105%);
 }
@@ -103,12 +114,128 @@
   transform: translateX(0);
 }
 
-
 .statsPanelToggle img {
   display: block;
   width: 32px;
   height: auto;
 }
+
+/* ==========================================================================
+   QUEST PANEL & TOGGLE BUTTON (DESKTOP)
+   ========================================================================== */
+
+/* Toggle Button Positioned at Bottom Right */
+.questPanelToggle {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 12;
+  pointer-events: auto;
+
+  font-family: var(--game-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ffd700;
+  
+  background: linear-gradient(180deg, #2a1f11 0%, #120c06 100%);
+  border: 1px solid #d4af37;
+  border-radius: 4px;
+  padding: 0.65rem 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 8px rgba(212, 175, 55, 0.2);
+  
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.questPanelToggle:hover {
+  background: linear-gradient(180deg, #3d2e18 0%, #1a1209 100%);
+  border-color: #fff0a6;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 14px rgba(212, 175, 55, 0.4);
+  transform: translateY(-2px);
+}
+
+.questPanelToggle:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Floating Quest Panel Container anchored above the button */
+.questPanelContainer {
+  position: absolute;
+  bottom: 4.8rem;
+  right: 1.5rem;
+  z-index: 11;
+  width: 340px;
+  max-height: 520px;
+  pointer-events: auto;
+
+  background: rgba(13, 10, 20, 0.95);
+  border: 1px solid #2a223d;
+  border-radius: 6px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  
+  animation: slideUpFade 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   INVENTORY PANEL & TOGGLE BUTTON (DESKTOP)
+   Positioned top-right, mirrors the quest panel's visual language.
+   ========================================================================== */
+
+.inventoryPanelToggle {
+  position: absolute;
+  top: 1rem;
+  right: 1.5rem;
+  z-index: 12;
+  pointer-events: auto;
+
+  font-family: var(--game-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #ffd700;
+
+  background: linear-gradient(180deg, #2a1f11 0%, #120c06 100%);
+  border: 1px solid #d4af37;
+  border-radius: 4px;
+  padding: 0.65rem 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 8px rgba(212, 175, 55, 0.2);
+
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.inventoryPanelToggle:hover {
+  background: linear-gradient(180deg, #3d2e18 0%, #1a1209 100%);
+  border-color: #fff0a6;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 14px rgba(212, 175, 55, 0.4);
+  transform: translateY(-2px);
+}
+
+.inventoryPanelToggle:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Floating Inventory Panel Container anchored below the button */
+.inventoryPanelContainer {
+  position: absolute;
+  top: 4.3rem;
+  right: 1.5rem;
+  z-index: 11;
+  pointer-events: auto;
+
+  animation: slideDownFade 0.25s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+/* ==========================================================================
+   BREAKTHROUGH OVERLAY
+   ========================================================================== */
 
 .breakthroughOverlay {
   position: fixed;
@@ -119,7 +246,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Higher than any HUD element */
+  z-index: 9999;
   animation: fadeIn 0.4s ease-out forwards;
   cursor: pointer;
 }
@@ -131,20 +258,22 @@
   box-shadow: 0 0 50px rgba(0, 0, 0, 0.9);
 }
 
+/* ==========================================================================
+   MOBILE STYLES
+   ========================================================================== */
+
 @media (max-width: 768px) {
   .character {
     max-height: 500px;
   }
 
-  /* Utility to clean up screen space if a menu is open */
   .hiddenMobile {
     display: none !important;
   }
 
-  /* Dynamic container positioned neatly over the background canvas */
   .mobilePanelContainer {
     position: absolute;
-    inset: 0 0 60px 0; /* fills screen but leaves room for bottom nav */
+    inset: 0 0 60px 0;
     padding: 1.5rem;
     overflow-y: auto;
     z-index: 10;
@@ -157,7 +286,6 @@
     animation: fadeIn 0.2s ease-out;
   }
 
-  /* Tab bar locked to the bottom of the device viewport */
   .mobileNavBar {
     position: absolute;
     bottom: 0;
@@ -176,23 +304,50 @@
     border: none;
     color: #a39eb3;
     font-family: var(--game-font-display);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
   }
 
   .mobileNavBar .activeTab {
-    color: #ffd700; /* Gold highlight */
+    color: #ffd700;
     background: rgba(255, 215, 0, 0.05);
     border-bottom: 3px solid #ffd700;
   }
+
   .breakthroughMedia {
-  max-width: 100%;
-  max-height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+  }
 }
-}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDownFade {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -4,19 +4,10 @@ import { getAuthToken } from "@/shared/hooks/authSession";
 import type { ServiceResult } from "@/types/ServiceResult";
 import { refreshPlayer, usePlayer } from "@/shared/hooks/playerStore";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
-
-interface NextBreakthroughPanelProps {
-  playerId: string;
-  cultivationPoint: number;
-  onBreakthroughResult: (result: "success" | "failed") => void;
-}
-interface NextBreakthroughResponse {
-  nextRealm: string;
-  nextStage: string;
-  isTribulation: boolean;
-  breakthroughPoints: number;
-  chanceOfSuccess: number;
-}
+import type {
+  NextBreakthroughPanelProps,
+  NextBreakthroughResponse,
+} from "../types/NextBreakthroughTypes";
 
 function useNextBreakthrough(playerId: string | undefined) {
   const [data, setData] = useState<NextBreakthroughResponse | null>(null);
@@ -24,49 +15,47 @@ function useNextBreakthrough(playerId: string | undefined) {
   const [error, setError] = useState<string | null>(null);
   const { player } = usePlayer();
 
-  useEffect(() => {
+  const load = async () => {
     if (!playerId) return;
+    setLoading(true);
+    setError(null);
 
-    const load = async () => {
-      setLoading(true);
-      setError(null);
+    try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const token = getAuthToken();
 
-      try {
-        const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        const token = getAuthToken();
-
-        const res = await fetch(
-          `${baseUrl}/api/players/nextBreakthrough/${playerId}`,
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
+      const res = await fetch(
+        `${baseUrl}/api/players/nextBreakthrough/${playerId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-        );
+        },
+      );
 
-        const result: ServiceResult<NextBreakthroughResponse> =
-          await res.json();
+      const result: ServiceResult<NextBreakthroughResponse> = await res.json();
 
-        if (!result.success) {
-          setError(result.message);
-          return;
-        }
-
-        setData(result.data);
-      } catch (e) {
-        setError(
-          e instanceof Error ? e.message : "Could not load breakthrough info.",
-        );
-      } finally {
-        setLoading(false);
+      if (!result.success) {
+        setError(result.message);
+        return;
       }
-    };
 
+      setData(result.data);
+    } catch (e) {
+      setError(
+        e instanceof Error ? e.message : "Could not load breakthrough info.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     load();
   }, [playerId, player?.cultivationPoint, player?.realmId, player?.realmStage]);
 
-  return { data, loading, error, player };
+  return { data, loading, error, player, refetch: load };
 }
 
 export function NextBreakthroughPanel({
@@ -74,7 +63,8 @@ export function NextBreakthroughPanel({
   cultivationPoint,
   onBreakthroughResult,
 }: NextBreakthroughPanelProps) {
-  const { data, loading, error, player } = useNextBreakthrough(playerId);
+  const { data, loading, error, player, refetch } =
+    useNextBreakthrough(playerId);
   const [isBreakingThrough, setIsBreakingThrough] = useState(false);
 
   const handleBreakthrough = async () => {
@@ -95,26 +85,23 @@ export function NextBreakthroughPanel({
         },
       );
 
-      // Adjust this type if your API returns data indicating a real success vs failure roll
       const result: ServiceResult<void> = await res.json();
 
+      setFlashMessage(result.message);
+
       if (!result.success) {
-        setFlashMessage(result.message);
         onBreakthroughResult("failed");
         return;
       }
 
-      setFlashMessage(result.message);
+      // 1. Synchronize player state from server first
+      await refreshPlayer();
 
-      const isRollSuccess = result.success;
+      // 2. Refetch breakthrough threshold for the new realm/stage
+      await refetch();
 
-      if (isRollSuccess) {
-        onBreakthroughResult("success");
-      } else {
-        onBreakthroughResult("failed");
-      }
-
-      refreshPlayer();
+      // 3. Trigger UI success animations
+      onBreakthroughResult("success");
     } catch (e) {
       onBreakthroughResult("failed");
     } finally {
@@ -122,7 +109,6 @@ export function NextBreakthroughPanel({
     }
   };
 
-  // ... (keep the rest of the rendering code exactly the same)
   if (loading || error || !data) return null;
   const { isTribulation, breakthroughPoints, chanceOfSuccess } = data;
   const progress =
