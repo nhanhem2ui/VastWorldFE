@@ -1,9 +1,3 @@
-:root {
-  --game-bg:     #05040a;
-  --game-font-display: "Cinzel", serif;
-  --game-font-body:    "IM Fell English", serif;
-}
-
 /* ── Panel shell ─────────────────────────────────────────────── */
 .panel {
   position: relative;

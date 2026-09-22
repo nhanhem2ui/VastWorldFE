@@ -9,6 +9,8 @@ import btnMin from "@/shared/assets/img/common/btn_min.png";
 import btnFull from "@/shared/assets/img/common/btn_full.png";
 import { MeditationPanel } from "../components/MeditationPanel";
 import { NextBreakthroughPanel } from "../components/NextBreakthroughPanel";
+import { QuestPanel } from "../components/QuestPanel";
+import { InventoryPanel } from "../components/InventoryPanel";
 import FlashMessage from "@/shared/components/FlashMessage";
 
 const DESKTOP_BACKGROUNDS = [
@@ -42,9 +44,11 @@ function Game() {
   const isMobile = useIsMobile();
   const [bgIndex] = useState(0);
   const [showStatsPanel, setShowStatsPanel] = useState(true);
-  const [mobileView, setMobileView] = useState<"main" | "stats" | "cultivate">(
-    "main",
-  );
+  const [showQuestPanel, setShowQuestPanel] = useState(false);
+  const [showInventoryPanel, setShowInventoryPanel] = useState(false);
+  const [mobileView, setMobileView] = useState<
+    "main" | "stats" | "cultivate" | "quests" | "inventory"
+  >("main");
 
   const [breakthroughState, setBreakthroughState] = useState<
     "idle" | "success" | "failed"
@@ -151,6 +155,7 @@ function Game() {
       {!isMobile && (
         <div className={styles.hud}>
           <div className={styles.hudLayoutContainer}>
+            {/* Stats Panel & Toggle */}
             <div
               className={`${styles.statsPanel} ${showStatsPanel ? styles.statsPanelVisible : styles.statsPanelHidden}`}
             >
@@ -173,6 +178,34 @@ function Game() {
                 aria-hidden="true"
               />
             </button>
+
+            {/* Quests Button & Floating Panel */}
+            <button
+              className={styles.questPanelToggle}
+              onClick={() => setShowQuestPanel((v) => !v)}
+            >
+              {showQuestPanel ? "Đóng Nhiệm Vụ" : "Nhiệm Vụ"}
+            </button>
+
+            {showQuestPanel && (
+              <div className={styles.questPanelContainer}>
+                <QuestPanel playerId={player.id} />
+              </div>
+            )}
+
+            {/* Inventory Button & Floating Panel */}
+            <button
+              className={styles.inventoryPanelToggle}
+              onClick={() => setShowInventoryPanel((v) => !v)}
+            >
+              {showInventoryPanel ? "Đóng Túi Đồ" : "Túi Đồ"}
+            </button>
+
+            {showInventoryPanel && (
+              <div className={styles.inventoryPanelContainer}>
+                <InventoryPanel playerId={player.id} />
+              </div>
+            )}
           </div>
         </div>
       )}
@@ -192,6 +225,16 @@ function Game() {
                   playerId={player.id}
                   cultivationSpeed={player.cultivationSpeed}
                 />
+              </div>
+            )}
+            {mobileView === "quests" && (
+              <div className={styles.mobilePanelContent}>
+                <QuestPanel playerId={player.id} />
+              </div>
+            )}
+            {mobileView === "inventory" && (
+              <div className={styles.mobilePanelContent}>
+                <InventoryPanel playerId={player.id} />
               </div>
             )}
           </div>
@@ -214,6 +257,18 @@ function Game() {
               onClick={() => setMobileView("cultivate")}
             >
               Cultivate
+            </button>
+            <button
+              className={mobileView === "quests" ? styles.activeTab : ""}
+              onClick={() => setMobileView("quests")}
+            >
+              Quests
+            </button>
+            <button
+              className={mobileView === "inventory" ? styles.activeTab : ""}
+              onClick={() => setMobileView("inventory")}
+            >
+              Inventory
             </button>
           </nav>
         </>

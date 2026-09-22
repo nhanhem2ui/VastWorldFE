@@ -4,19 +4,10 @@ import styles from "../assets/css/meditationPanel.module.css";
 import type { ServiceResult } from "@/types/ServiceResult";
 import { refreshPlayer, usePlayer } from "@/shared/hooks/playerStore";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
-
-interface GetPlayerMeditationByIdResponse {
-  startTime: string; // LocalDateTime string
-  endTime: string;
-  cultivationPerMinute: number;
-  totalCultivationReward: number;
-  isClaimed: boolean;
-}
-
-interface MeditationPanelProps {
-  playerId: string;
-  cultivationSpeed: number;
-}
+import type {
+  GetPlayerMeditationByIdResponse,
+  MeditationPanelProps,
+} from "../types/MeditationTypes";
 
 const MAX_TOTAL_MINUTES = 1440; // 24 hours
 

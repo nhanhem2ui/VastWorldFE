@@ -1,0 +1,103 @@
+.toast {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+
+  z-index: 50;
+
+  width: 360px;
+
+  border: 1px solid rgb(251 191 36 / 40%);
+  border-radius: 0.5rem;
+
+  background-color: rgb(23 23 23);
+
+  box-shadow:
+    0 10px 15px -3px rgb(0 0 0 / 10%),
+    0 4px 6px -4px rgb(0 0 0 / 10%);
+
+  overflow: hidden;
+}
+
+.image {
+  display: block;
+
+  width: 100%;
+  height: 8rem;
+
+  object-fit: cover;
+}
+
+.content {
+  padding: 1rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.title {
+  margin: 0;
+
+  color: rgb(252 211 77);
+
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+
+  color: rgb(212 212 212);
+
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.error {
+  margin: 0;
+
+  color: rgb(248 113 113);
+
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.claimButton {
+  width: 100%;
+
+  margin-top: 0.25rem;
+
+  padding: 0.5rem 1rem;
+
+  border: none;
+  border-radius: 0.375rem;
+
+  background-color: rgb(245 158 11);
+
+  color: rgb(23 23 23);
+
+  font-weight: 500;
+
+  cursor: pointer;
+
+  transition: background-color 0.15s ease;
+}
+
+.claimButton:hover:not(:disabled) {
+  background-color: rgb(251 191 36);
+}
+
+.claimButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.rewards {
+  margin: 0;
+
+  color: rgb(163 230 53);
+
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  white-space: pre-line;
+}
