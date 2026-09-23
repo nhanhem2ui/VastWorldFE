@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import type { PlayerResponse } from "@/types/PlayerResponse";
 import type { ServiceResult } from "@/types/ServiceResult";
 
-import { getAuthToken } from "@/shared/hooks/authSession";
 import styles from "../assets/css/playerStatsPanel.module.css";
 import { SPIRIT_ROOT_MAP } from "@/shared/constants/spiritRootMap";
 
@@ -22,7 +21,6 @@ function SpiritRoots({ playerId }: { playerId: string }) {
   const [roots, setRoots] = useState<string[]>(cached ?? []);
   const [loading, setLoading] = useState(!cached);
 
-  const token = getAuthToken();
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
@@ -34,7 +32,7 @@ function SpiritRoots({ playerId }: { playerId: string }) {
       try {
         const res = await fetch(
           `${baseUrl}/api/player-spirit-roots/${playerId}`,
-          { headers: { Authorization: `Bearer ${token}` } },
+          { credentials: "include" },
         );
         const result: ServiceResult<string[]> = await res.json();
         if (!res.ok || !result.success || !result.data) return;
@@ -51,7 +49,7 @@ function SpiritRoots({ playerId }: { playerId: string }) {
     return () => {
       cancelled = true;
     };
-  }, [playerId, baseUrl, token]);
+  }, [playerId, baseUrl]);
 
   if (loading) return <span className={styles.dimText}>…</span>;
   if (roots.length === 0) return <span className={styles.dimText}>—</span>;

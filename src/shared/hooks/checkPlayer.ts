@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-import { clearAuthSession, getAuthToken, getStoredUser } from "./authSession";
+import { clearAuthSession, getStoredUser, isAuthenticated } from "./authSession";
 
 import type { ServiceResult } from "@/types/ServiceResult";
 import type { PlayerResponse } from "@/types/PlayerResponse";
@@ -11,10 +11,9 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
 export async function fetchPlayer(): Promise<PlayerResponse>{
 
-  const token = getAuthToken();
   const user = getStoredUser();
 
-  if (!token || !user?.userID){
+  if (!isAuthenticated || user == null){
     throw new Error(
       "Please sign in."
     );
@@ -22,10 +21,8 @@ export async function fetchPlayer(): Promise<PlayerResponse>{
 
   const response = await fetch(`${baseUrl}/api/players/${encodeURIComponent(user.playerID ?? "")}`,
       {
-        headers:{
-          "Content-Type":"application/json",
-          Authorization:`Bearer ${token}`
-        }
+        method: "GET",
+        credentials: "include"
       }
     );
 
@@ -55,13 +52,10 @@ export function usePlayerSpiritRoot() {
     async function load(){
       try{
         const player = await fetchPlayer();
-        const token = getAuthToken();
         const response =await fetch(`${baseUrl}/api/player-spirit-roots/${player.id}`,
             {
-              headers:{
-                "Content-Type":"application/json",
-                Authorization:`Bearer ${token}`,
-              }
+              method: "GET",
+              credentials: "include"
             }
           );
         const result:ServiceResult<PlayerSpiritRootResponse[]> = await response.json();

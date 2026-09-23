@@ -1,6 +1,5 @@
 import { Application, Assets, Container } from "pixi.js";
 import { initDevtools } from "@pixi/devtools";
-import { getAuthToken } from "@/shared/hooks/authSession";
 import type { ServiceResult } from "@/types/ServiceResult";
 import { loadAsset } from "../hooks/assetLoader";
 import { createSprite, createPlayerMarker, createDestinationRing } from "../hooks/displayObject";
@@ -21,15 +20,11 @@ export async function mapComponent(
   options: MapComponentOptions = {}
 ): Promise<MapComponentHandle> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const token = getAuthToken();
 
   // 1. Fetch player position
   const posRes = await fetch(`${baseUrl}/api/map/playerPosition/${playerId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include"
   });
 
   if (!posRes.ok) throw new Error(`Failed to load player position (${posRes.status})`);
@@ -45,10 +40,7 @@ export async function mapComponent(
   // 2. Fetch map data
   const mapRes = await fetch(`${baseUrl}/api/map/${playerPos.mapId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include"
   });
 
   if (!mapRes.ok)
@@ -271,10 +263,7 @@ export async function mapComponent(
     try {
       const res = await fetch(`${baseUrl}/api/map/travel`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         body: JSON.stringify({
           playerId,
           x: target.x,

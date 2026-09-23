@@ -9,7 +9,6 @@ import type {
   DecorationsOfRegion,
 } from "../types/types";
 import type { ServiceResult } from "@/types/ServiceResult";
-import { getAuthToken } from "@/shared/hooks/authSession";
 import styles from "../assets/css/Map.module.css";
 
 type ViewMode = "map" | "region";
@@ -134,14 +133,10 @@ export default function Map() {
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      const token = getAuthToken();
 
       const res = await fetch(`${baseUrl}/api/map/travel`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         body: JSON.stringify({
           playerId,
           x: 0,

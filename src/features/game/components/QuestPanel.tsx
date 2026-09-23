@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import styles from "../assets/css/QuestPanel.module.css";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
-import { getAuthToken } from "@/shared/hooks/authSession";
 
 type QuestObjectiveType =
   | "LEVEL_UP"
@@ -58,14 +57,10 @@ async function fetchAvailableQuests(
   playerId: string,
 ): Promise<AvailableQuest[]> {
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const token = getAuthToken();
 
   const res = await fetch(`${baseUrl}/api/quests/${playerId}`, {
     method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
+    credentials: "include",
   });
 
   if (!res.ok) {

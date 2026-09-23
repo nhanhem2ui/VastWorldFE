@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import { getAuthToken } from "@/shared/hooks/authSession";
 import styles from "../assets/css/meditationPanel.module.css";
 import type { ServiceResult } from "@/types/ServiceResult";
 import { refreshPlayer, usePlayer } from "@/shared/hooks/playerStore";
@@ -103,7 +102,6 @@ export function MeditationPanel({
   const { player } = usePlayer();
   const now = useNow();
 
-  const token = getAuthToken();
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   const fetchMeditation = useCallback(async () => {
@@ -111,7 +109,8 @@ export function MeditationPanel({
     setError("");
     try {
       const res = await fetch(`${baseUrl}/api/player-meditations/${playerId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        method: "GET",
+        credentials: "include",
       });
       if (res.status === 404) {
         setMeditation(null);
@@ -127,7 +126,7 @@ export function MeditationPanel({
     } finally {
       setLoading(false);
     }
-  }, [playerId, token, player?.cultivationSpeed]);
+  }, [playerId, player?.cultivationSpeed]);
 
   useEffect(() => {
     fetchMeditation();
@@ -141,10 +140,7 @@ export function MeditationPanel({
         `${baseUrl}/api/player-meditations/beginMeditate`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
+          credentials: "include",
           body: JSON.stringify({ playerId, durationMinutes }),
         },
       );
@@ -164,7 +160,7 @@ export function MeditationPanel({
     try {
       const res = await fetch(
         `${baseUrl}/api/player-meditations/claimMeditate/${playerId}`,
-        { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+        { method: "POST", credentials: "include" },
       );
       setFlashMessage("Đã nhận được tu vi");
 

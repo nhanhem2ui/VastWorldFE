@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../assets/css/nextBreakthroughPanel.module.css";
-import { getAuthToken } from "@/shared/hooks/authSession";
 import type { ServiceResult } from "@/types/ServiceResult";
 import { refreshPlayer, usePlayer } from "@/shared/hooks/playerStore";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
@@ -15,22 +14,19 @@ function useNextBreakthrough(playerId: string | undefined) {
   const [error, setError] = useState<string | null>(null);
   const { player } = usePlayer();
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!playerId) return;
+
     setLoading(true);
     setError(null);
 
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      const token = getAuthToken();
 
       const res = await fetch(
         `${baseUrl}/api/players/nextBreakthrough/${playerId}`,
         {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         },
       );
 
@@ -49,13 +45,19 @@ function useNextBreakthrough(playerId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [playerId, player?.cultivationPoint, player?.realmId, player?.realmStage]);
 
   useEffect(() => {
     load();
-  }, [playerId, player?.cultivationPoint, player?.realmId, player?.realmStage]);
+  }, [load]);
 
-  return { data, loading, error, player, refetch: load };
+  return {
+    data,
+    loading,
+    error,
+    player,
+    refetch: load,
+  };
 }
 
 export function NextBreakthroughPanel({
@@ -72,16 +74,12 @@ export function NextBreakthroughPanel({
       setIsBreakingThrough(true);
 
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
-      const token = getAuthToken();
 
       const res = await fetch(
         `${baseUrl}/api/players/breakthrough/${playerId}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         },
       );
 

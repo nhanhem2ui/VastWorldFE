@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import styles from "../assets/css/InventoryPanel.module.css";
 import type { ServiceResult } from "@/types/ServiceResult";
 import type {
@@ -30,8 +30,9 @@ function useInventory(playerId: string | undefined) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!playerId) return;
+
     setLoading(true);
     setError(null);
 
@@ -39,6 +40,7 @@ function useInventory(playerId: string | undefined) {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
       const res = await fetch(`${baseUrl}/api/player-inventories`, {
+        method: "GET",
         credentials: "include",
       });
 
@@ -55,13 +57,18 @@ function useInventory(playerId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [playerId]);
 
   useEffect(() => {
     load();
-  }, [playerId]);
+  }, [load]);
 
-  return { items, loading, error, refetch: load };
+  return {
+    items,
+    loading,
+    error,
+    refetch: load,
+  };
 }
 
 export function InventoryPanel({ playerId }: InventoryPanelProps) {

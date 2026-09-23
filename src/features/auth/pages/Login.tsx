@@ -1,10 +1,7 @@
 import { useState, type FormEvent } from "react";
 import type { ServiceResult } from "@/types/ServiceResult";
 import type { AuthResponse } from "../types/AuthResponse";
-import {
-  isAuthenticated,
-  saveAuthSession,
-} from "../../../shared/hooks/authSession";
+import { isAuthenticated, saveUser } from "../../../shared/hooks/authSession";
 import { Navigate, useNavigate } from "react-router-dom";
 import { sleep } from "@/shared/hooks/sleep";
 import FlashMessage from "@/shared/components/FlashMessage";
@@ -52,7 +49,13 @@ function Login() {
         throw new Error("Login succeeded without auth data.");
       }
 
-      saveAuthSession(result.data, remember);
+      saveUser({
+        userID: result.data.userID,
+        username: result.data.username,
+        email: result.data.email,
+        role: result.data.role,
+        playerID: result.data.playerID,
+      });
       setFlashMessage("Login Successfully");
       setMessage(result.message);
       await sleep(1000);
