@@ -18,7 +18,6 @@ import type {
     RegionComponentOptions,
 } from "../types/types";
 import type { ServiceResult } from "@/types/ServiceResult";
-import { getAuthToken } from "@/shared/hooks/authSession";
 
 const textureCache = new Map<string, Texture>();
 
@@ -207,14 +206,10 @@ export async function regionComponent(
 
     try {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
-        const token = getAuthToken();
 
         const playeRegionRes = await fetch(`${baseUrl}/api/region/player/${playerId}`,{
             method: "GET",
-            headers:{
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-            }
+            credentials: "include"
         });
           const playerRegionResponse: ServiceResult<GetPlayerRegionResponse> = await playeRegionRes.json();
         
@@ -227,10 +222,7 @@ export async function regionComponent(
 
         const regionRes = await fetch(`${baseUrl}/api/region/${playerRegion.regionId}`,{
             method: "GET",
-            headers:{
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-            }
+            credentials: "include"
         });
         
         const regionResponse : ServiceResult<GetRegionResponse> = await regionRes.json();

@@ -1,11 +1,7 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import FlashMessage from "@/shared/components/FlashMessage";
-import {
-  getAuthToken,
-  getStoredUser,
-  isAuthenticated,
-} from "@/shared/hooks/authSession";
+import { getStoredUser, isAuthenticated } from "@/shared/hooks/authSession";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
 import { sleep } from "@/shared/hooks/sleep";
 import type { ServiceResult } from "@/types/ServiceResult";
@@ -106,10 +102,7 @@ function SpiritRootRollPhase({
         `${baseUrl}/api/player-spirit-roots/roll/${playerId}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+          credentials: "include",
         },
       );
 
@@ -243,9 +236,8 @@ function CreatePlayer() {
 
   const { player, loading, error } = usePlayer();
   const { spiritRoots, loading: rootsLoading } = usePlayerSpiritRoot();
-  const token = getAuthToken();
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
   useEffect(() => {
     if (player && spiritRoots !== null) {
       const needsToRoll = spiritRoots.length === 0;
@@ -277,10 +269,7 @@ function CreatePlayer() {
     try {
       const response = await fetch(`${baseUrl}/api/players/playable`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        credentials: "include",
         body: JSON.stringify(createPlayerRequest),
       });
 

@@ -1,94 +1,36 @@
 import type { AuthResponse } from "@/features/auth/types/AuthResponse";
 
-const AUTH_SESSION_KEY = "vastworld.auth";
-const JWT_KEY = "vastworld.jwt";
+const USER_KEY = "vastworld.user";
 
-export type StoredUser =
-  Pick<AuthResponse,
-  "userID" |
-  "username" |
-  "email" |
-  "role" |
-  "playerID"
-  >;
+export type StoredUser = Pick<AuthResponse, "userID" | "username" | "email" | "role" | "playerID">;
 
-export type AuthSession = {
-  token: string;
-  expiresIn: number;
-  user: StoredUser;
-};
-
-export function savePlayerID(playerID:string){
-  const session = getAuthSession();
-  if (!session) return;
-
-  session.user.playerID = playerID;
-  const storage = window.localStorage.getItem(AUTH_SESSION_KEY) ? window.localStorage : window.sessionStorage;
-
-  storage.setItem(AUTH_SESSION_KEY, JSON.stringify(session)
-  );
+export function saveUser(user: StoredUser) {
+  sessionStorage.setItem(USER_KEY, JSON.stringify(user));
 }
 
-export function saveAuthSession(auth: AuthResponse, remember: boolean) {
-  const storage = remember ? window.localStorage : window.sessionStorage;
-  const otherStorage = remember ? window.sessionStorage : window.localStorage;
-
-  const authSession: AuthSession = {
-    token: auth.token,
-    expiresIn: auth.expiresIn,
-    user: {
-      userID: auth.userID,
-      username: auth.username,
-      email: auth.email,
-      role: auth.role,
-      playerID: auth.playerID
-    },
-  };
-
-  storage.setItem(AUTH_SESSION_KEY, JSON.stringify(authSession));
-  storage.setItem(JWT_KEY, auth.token);
-
-  otherStorage.removeItem(AUTH_SESSION_KEY);
-  otherStorage.removeItem(JWT_KEY);
+export function getStoredUser(): StoredUser | null {
+  const raw = sessionStorage.getItem(USER_KEY);
+  return raw ? JSON.parse(raw) : null;
 }
 
-// Get the full session (token + user info)
-export function getAuthSession(): AuthSession | null {
-  const raw =
-    window.localStorage.getItem(AUTH_SESSION_KEY) ??
-    window.sessionStorage.getItem(AUTH_SESSION_KEY);
+export function clearAuthSession() {
+  sessionStorage.removeItem(USER_KEY);
+}
 
-  if (!raw) return null;
+// This is only for fast check for routing
+export function isAuthenticated(): boolean {
+  return getStoredUser() !== null;
+}
 
-  try {
-    return JSON.parse(raw) as AuthSession;
-  } catch {
+// Real check — call this on app boot / route guards where it matters
+export async function checkAuth(): Promise<StoredUser | null> {
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const res = await fetch(`${baseUrl}/api/auth/me`, { credentials: "include" });
+  if (!res.ok) {
+    clearAuthSession();
     return null;
   }
-}
-
-// Get just the JWT token
-export function getAuthToken(): string | null {
-  return (
-    window.localStorage.getItem(JWT_KEY) ??
-    window.sessionStorage.getItem(JWT_KEY)
-  );
-}
-
-// Get the stored user info
-export function getStoredUser(): StoredUser | null {
-  return getAuthSession()?.user ?? null;
-}
-
-// Check if user is logged in
-export function isAuthenticated(): boolean {
-  return getAuthToken() !== null;
-}
-
-// Clear session on logout
-export function clearAuthSession() {
-  window.localStorage.removeItem(AUTH_SESSION_KEY);
-  window.localStorage.removeItem(JWT_KEY);
-  window.sessionStorage.removeItem(AUTH_SESSION_KEY);
-  window.sessionStorage.removeItem(JWT_KEY);
+  const user: StoredUser = await res.json();
+  saveUser(user);
+  return user;
 }
