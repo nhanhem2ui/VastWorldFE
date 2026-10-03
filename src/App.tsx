@@ -6,6 +6,7 @@ import Game from "@/features/game/pages/Game";
 import CreatePlayer from "@/features/playerCreation/pages/CreatePlayer";
 import Map from "./features/worldMap/pages/Map";
 import MapBuilder from "./features/mapBuilder/pages/MapBuilder";
+import { AuthenticatedLayout } from "./AuthenticatedLayout";
 
 function App() {
   return (
@@ -13,10 +14,14 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
-      <Route path="/game" element={<Game />} />
       <Route path="/createPlayer" element={<CreatePlayer />} />
-      <Route path="/map" element={<Map />} />
       <Route path="/mapBuilder" element={<MapBuilder />} />
+
+      {/* Pages that need to be logged in  */}
+      <Route element={<AuthenticatedLayout />}>
+        <Route path="/game" element={<Game />} />
+        <Route path="/map" element={<Map />} />
+      </Route>
     </Routes>
   );
 }

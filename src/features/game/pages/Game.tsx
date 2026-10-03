@@ -50,6 +50,11 @@ function Game() {
     "main" | "stats" | "cultivate" | "quests" | "inventory"
   >("main");
 
+  // Bumped whenever an item is equipped (from the inventory) or unequipped
+  // (from the stats panel), so both panels know to refetch and stay in sync.
+  const [inventoryVersion, setInventoryVersion] = useState(0);
+  const bumpInventoryVersion = () => setInventoryVersion((v) => v + 1);
+
   const [breakthroughState, setBreakthroughState] = useState<
     "idle" | "success" | "failed"
   >("idle");
@@ -159,7 +164,11 @@ function Game() {
             <div
               className={`${styles.statsPanel} ${showStatsPanel ? styles.statsPanelVisible : styles.statsPanelHidden}`}
             >
-              <PlayerStatsPanel player={player} />
+              <PlayerStatsPanel
+                player={player}
+                inventoryVersion={inventoryVersion}
+                onInventoryChange={bumpInventoryVersion}
+              />
               <MeditationPanel
                 playerId={player.id}
                 cultivationSpeed={player.cultivationSpeed}
@@ -189,7 +198,7 @@ function Game() {
 
             {showQuestPanel && (
               <div className={styles.questPanelContainer}>
-                <QuestPanel playerId={player.id} />
+                <QuestPanel />
               </div>
             )}
 
@@ -203,7 +212,11 @@ function Game() {
 
             {showInventoryPanel && (
               <div className={styles.inventoryPanelContainer}>
-                <InventoryPanel playerId={player.id} />
+                <InventoryPanel
+                  playerId={player.id}
+                  inventoryVersion={inventoryVersion}
+                  onInventoryChange={bumpInventoryVersion}
+                />
               </div>
             )}
           </div>
@@ -216,7 +229,11 @@ function Game() {
           <div className={styles.mobilePanelContainer}>
             {mobileView === "stats" && (
               <div className={styles.mobilePanelContent}>
-                <PlayerStatsPanel player={player} />
+                <PlayerStatsPanel
+                  player={player}
+                  inventoryVersion={inventoryVersion}
+                  onInventoryChange={bumpInventoryVersion}
+                />
               </div>
             )}
             {mobileView === "cultivate" && (
@@ -229,12 +246,16 @@ function Game() {
             )}
             {mobileView === "quests" && (
               <div className={styles.mobilePanelContent}>
-                <QuestPanel playerId={player.id} />
+                <QuestPanel />
               </div>
             )}
             {mobileView === "inventory" && (
               <div className={styles.mobilePanelContent}>
-                <InventoryPanel playerId={player.id} />
+                <InventoryPanel
+                  playerId={player.id}
+                  inventoryVersion={inventoryVersion}
+                  onInventoryChange={bumpInventoryVersion}
+                />
               </div>
             )}
           </div>

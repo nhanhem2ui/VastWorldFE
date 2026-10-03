@@ -9,42 +9,33 @@ export interface QuestCompletedNotification {
   completedImageUrl: string;
   rewardsText: string;
 }
+
 interface QuestNotifState {
   queue: QuestCompletedNotification[];
-  claimingId: number | null;
-  error: string;
 }
 
-let state: QuestNotifState = {
-  queue: [],
-  claimingId: null,
-  error: "",
-};
+let state: QuestNotifState = { queue: [] };
 
 const listeners = new Set<() => void>();
 
 function setState(patch: Partial<QuestNotifState>) {
-  //update patch into state
   state = { ...state, ...patch };
-  listeners.forEach(l => l());
+  listeners.forEach((l) => l());
 }
 
-function upsert(n: QuestCompletedNotification) {  
-  if (state.queue.some(q => q.questId === n.questId)) return;
-
-  setState({
-    //add n to queue
-    queue: [...state.queue, n],
-  });
+function upsert(n: QuestCompletedNotification) {
+  if (state.queue.some((q) => q.questId === n.questId)) return;
+  setState({ queue: [...state.queue, n] });
 }
 
 onSSE("quest-completed", (data) => {
   upsert(data as QuestCompletedNotification);
+  // Rewards are already granted server-side, so sync the player now
+  void refreshPlayer();
 });
 
 function subscribe(onStoreChange: () => void) {
   listeners.add(onStoreChange);
-
   const release = holdConnection(onStoreChange);
 
   return () => {
@@ -57,47 +48,16 @@ function getSnapshot(): QuestNotifState {
   return state;
 }
 
-export async function claimQuest(questId: number) {
-  setState({
-    claimingId: questId,
-    error: "",
-  });
-
-  try {
-    const res = await fetch(`/api/quests/${questId}/claim`, {
-      method: "POST",
-      credentials: "include",
-    });
-
-    if (!res.ok) {
-      throw new Error(`Claim failed (${res.status})`);
-    }
-
-    setState({
-      queue: state.queue.filter(q => q.questId !== questId),
-      claimingId: null,
-    });
-
-    await refreshPlayer();
-  } catch (e) {
-    setState({
-      claimingId: null,
-      error: e instanceof Error
-        ? e.message
-        : "Could not claim reward.",
-    });
-  }
+export function dismissQuestNotification(questId: number) {
+  setState({ queue: state.queue.filter((q) => q.questId !== questId) });
 }
 
 export function useQuestNotifications() {
-  const { queue, claimingId, error } =
-    useSyncExternalStore(subscribe, getSnapshot);
+  const { queue } = useSyncExternalStore(subscribe, getSnapshot);
 
   return {
     current: queue[0] ?? null,
     queueLength: queue.length,
-    claimingId,
-    error,
-    claimQuest,
+    dismiss: dismissQuestNotification,
   };
 }

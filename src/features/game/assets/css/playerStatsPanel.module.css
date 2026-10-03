@@ -44,7 +44,7 @@
 }
 
 .eyebrow {
-  font-family: "Cinzel", serif;
+  font-family: "Cinzel Decorative", serif;
   font-size: large;
   font-weight: bold;
   letter-spacing: 0.4em;
@@ -78,7 +78,7 @@
 }
 
 .sectionTitle {
-  font-family: "Cinzel", serif;
+  font-family: "Cinzel Decorative", serif;
   font-size: smaller;
   font-weight: bold;
   letter-spacing: 0.38em;
@@ -141,7 +141,7 @@
   align-self: center;
 }
 .statValue {
-  font-family: "Cinzel", serif;
+  font-family: "Cinzel Decorative", serif;
   font-size: 0.74rem;
   color: var(--cpg-text, #e8dfc8);
   text-align: right;
@@ -162,10 +162,36 @@
   border: 1px dashed rgba(180, 140, 60, 0.18);
   border-radius: 2px;
   background: rgba(0, 0, 0, 0.2);
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: default;
+}
+.equipSlot:not(:disabled) {
+  cursor: pointer;
 }
 .equipSlot:hover {
   border-color: rgba(180, 140, 60, 0.35);
+}
+.equipSlotFilled {
+  border-style: solid;
+  border-color: rgba(212, 168, 67, 0.45);
+  background: rgba(212, 168, 67, 0.08);
+}
+.equipSlotFilled:hover {
+  border-color: #ffd700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+}
+.equipSlotImage {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 /* ── Relic slots ─────────────────────────────────────────────── */
@@ -184,6 +210,133 @@
 }
 .relicSlot:hover {
   border-color: rgba(155, 93, 229, 0.35);
+}
+
+/* ── Equipped item details modal ────────────────────────────── */
+.detailsOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9998;
+  cursor: pointer;
+}
+
+.detailsCard {
+  position: relative;
+  width: 260px;
+  padding: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  text-align: center;
+  cursor: default;
+  background: rgba(18, 15, 30, 0.97);
+  border: 1px solid rgba(212, 168, 67, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.9);
+  clip-path: polygon(
+    16px 0,
+    100% 0,
+    100% calc(100% - 16px),
+    calc(100% - 16px) 100%,
+    0 100%,
+    0 16px
+  );
+}
+
+.detailsClose {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.6rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.detailsImage {
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  margin-top: 0.25rem;
+}
+
+.detailsName {
+  font-family: "Cinzel Decorative", serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--cpg-gold, #d4a843);
+}
+
+.detailsMeta {
+  font-family: "IM Fell English", serif;
+  font-style: italic;
+  font-size: 0.75rem;
+  color: var(--cpg-text-dim, #8a7d65);
+  text-transform: capitalize;
+}
+
+.detailsStats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(180, 140, 60, 0.2);
+}
+
+.detailsStatRow {
+  display: flex;
+  justify-content: space-between;
+  font-family: "IM Fell English", serif;
+  font-size: 0.85rem;
+}
+
+.detailsStatLabel {
+  color: var(--cpg-text-dim, #8a7d65);
+}
+
+.detailsStatValue {
+  color: var(--cpg-text, #e8dfc8);
+}
+
+.unequipButton {
+  margin-top: 0.65rem;
+  width: 100%;
+  padding: 0.5rem 1rem;
+  font-family: "Cinzel", serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.05em;
+  color: #1a1408;
+  background: linear-gradient(180deg, #ffe066, #d4af37);
+  border: 1px solid #fff4c2;
+  cursor: pointer;
+  clip-path: polygon(
+    8px 0,
+    100% 0,
+    100% calc(100% - 8px),
+    calc(100% - 8px) 100%,
+    0 100%,
+    0 8px
+  );
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.unequipButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.35);
+}
+
+.unequipButton:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
 }
 
 /* ── Responsive ──────────────────────────────────────────────── */

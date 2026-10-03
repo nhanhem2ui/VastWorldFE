@@ -2,11 +2,9 @@ import { useQuestNotifications } from "@/shared/hooks/questNotificationStore";
 import styles from "../assets/css/QuestCompletedToast.module.css";
 
 export function QuestCompletedToast() {
-  const { current, claimingId, error, claimQuest } = useQuestNotifications();
+  const { current, queueLength, dismiss } = useQuestNotifications();
 
   if (!current) return null;
-
-  const isClaiming = claimingId === current.questId;
 
   return (
     <div className={styles.toast}>
@@ -25,14 +23,11 @@ export function QuestCompletedToast() {
           <p className={styles.rewards}>{current.rewardsText}</p>
         )}
 
-        {error && <p className={styles.error}>{error}</p>}
-
         <button
-          onClick={() => claimQuest(current.questId)}
-          disabled={isClaiming}
-          className={styles.claimButton}
+          onClick={() => dismiss(current.questId)}
+          className={styles.closeButton}
         >
-          {isClaiming ? "Claiming…" : "Claim"}
+          {queueLength > 1 ? `Đóng (còn ${queueLength - 1})` : "Đóng"}
         </button>
       </div>
     </div>
