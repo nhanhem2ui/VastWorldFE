@@ -2,8 +2,8 @@
 
 :root {
   --game-bg:     #05040a;
-  --game-font-display: fangsong;
-  --game-font-body:    "IM Fell English", serif;
+  --game-font-display: "Cinzel Decorative", serif;
+  --game-font-body:    fangsong, serif;
 }
 
 .main {

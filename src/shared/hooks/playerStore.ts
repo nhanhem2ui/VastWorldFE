@@ -18,6 +18,7 @@ function setState(patch: Partial<PlayerState>) {
   listeners.forEach(listener => listener());
 }
 
+//TODO: eh ?
 onSSE("player-update", (data) => {
   setState({ player: data as PlayerResponse, loading: false, error: "" });
 });

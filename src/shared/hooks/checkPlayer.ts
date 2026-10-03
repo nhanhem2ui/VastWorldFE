@@ -52,7 +52,7 @@ export function usePlayerSpiritRoot() {
     async function load(){
       try{
         const player = await fetchPlayer();
-        const response =await fetch(`${baseUrl}/api/player-spirit-roots/${player.id}`,
+        const response = await fetch(`${baseUrl}/api/player-spirit-roots/${player.id}`,
             {
               method: "GET",
               credentials: "include"

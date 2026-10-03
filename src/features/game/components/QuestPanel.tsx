@@ -1,118 +1,102 @@
 import { useState, useEffect, useCallback } from "react";
 import styles from "../assets/css/QuestPanel.module.css";
 import { setFlashMessage } from "@/shared/hooks/flashMessage";
+import type { ServiceResult } from "@/types/ServiceResult";
+import {
+  type AvailableQuest,
+  type AcceptedQuest,
+  type ObjectiveProgress,
+  OBJECTIVE_ICON,
+} from "../types/QuestTypes";
+import { onSSE } from "@/shared/hooks/sseConnection";
 
-type QuestObjectiveType =
-  | "LEVEL_UP"
-  | "KILL_MONSTER"
-  | "REACH_MAP"
-  | "REACH_COORDINATE"
-  | "COLLECT_ITEM";
+const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-interface ObjectiveOfQuest {
-  objectiveType: QuestObjectiveType;
-  description: string;
-  requiredCount: number | null;
-  monsterId: number | null;
-  itemId: string | null;
-  targetRealm: string | null;
-  targetRealmStage: string | null;
-  targetMap: number | null;
-  targetX: number | null;
-  targetY: number | null;
-}
-
-interface AvailableQuest {
-  id: number;
-  name: string;
-  requiredRealm: string;
-  questObjectives: ObjectiveOfQuest[];
-}
-
-// TODO: confirm this matches the real shape of ServiceResult<T> on the backend
-interface ServiceResult<T> {
-  success: boolean;
-  message: string | null;
-  data: T | null;
-}
-
-// Claimed/in-progress quests aren't wired up yet — placeholder shape for when
-// that endpoint exists.
-interface ClaimedQuest {
-  id: number;
-  name: string;
-  progress: number;
-  requiredCount: number;
-}
-
-const OBJECTIVE_ICON: Record<QuestObjectiveType, string> = {
-  LEVEL_UP: "⛰",
-  KILL_MONSTER: "⚔",
-  REACH_MAP: "🗺",
-  REACH_COORDINATE: "📍",
-  COLLECT_ITEM: "🎒",
-};
-
-async function fetchAvailableQuests(
-  playerId: string,
-): Promise<AvailableQuest[]> {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-
-  const res = await fetch(`${baseUrl}/api/quests/${playerId}`, {
-    method: "GET",
+async function request<T>(path: string, init?: RequestInit): Promise<T | null> {
+  const res = await fetch(`${baseUrl}${path}`, {
     credentials: "include",
+    ...init,
   });
 
-  if (!res.ok) {
-    throw new Error(`Không thể tải nhiệm vụ (${res.status})`);
+  // Read the body even on 4xx so the backend's message can be shown
+  const result: ServiceResult<T> | null = await res.json().catch(() => null);
+
+  if (!res.ok || !result?.success) {
+    throw new Error(result?.message ?? `Yêu cầu thất bại (${res.status})`);
   }
-
-  const result: ServiceResult<AvailableQuest[]> = await res.json();
-
-  if (!result.success || result.data === null) {
-    throw new Error(result.message ?? "Không thể tải nhiệm vụ");
-  }
-
   return result.data;
 }
 
-interface QuestPanelProps {
-  playerId: string;
-}
+type QuestTab = "available" | "accepted";
 
-type QuestTab = "available" | "claimed";
-
-export function QuestPanel({ playerId }: QuestPanelProps) {
+export function QuestPanel() {
   const [activeTab, setActiveTab] = useState<QuestTab>("available");
+
   const [availableQuests, setAvailableQuests] = useState<AvailableQuest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [availableLoading, setAvailableLoading] = useState(true);
+  const [availableError, setAvailableError] = useState<string | null>(null);
+
+  const [acceptedQuests, setAcceptedQuests] = useState<AcceptedQuest[]>([]);
+  const [acceptedLoading, setAcceptedLoading] = useState(true);
+  const [acceptedError, setAcceptedError] = useState<string | null>(null);
+
   const [acceptingId, setAcceptingId] = useState<number | null>(null);
 
-  const loadQuests = useCallback(async () => {
-    setLoading(true);
-    setError(null);
+  // silent = refetch without swapping the list for a loading message
+  const loadAvailable = useCallback(async (silent = false) => {
+    if (!silent) setAvailableLoading(true);
+    setAvailableError(null);
     try {
-      const quests = await fetchAvailableQuests(playerId);
-      setAvailableQuests(quests);
+      const data = await request<AvailableQuest[]>(`/api/quests`);
+      setAvailableQuests(data ?? []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Đã có lỗi xảy ra");
+      setAvailableError(
+        err instanceof Error ? err.message : "Đã có lỗi xảy ra",
+      );
     } finally {
-      setLoading(false);
+      setAvailableLoading(false);
     }
-  }, [playerId]);
+  }, []);
+
+  const loadAccepted = useCallback(async (silent = false) => {
+    if (!silent) setAcceptedLoading(true);
+    setAcceptedError(null);
+    try {
+      const data = await request<AcceptedQuest[]>(`/api/quests/accepted`);
+      setAcceptedQuests(data ?? []);
+    } catch (err) {
+      setAcceptedError(err instanceof Error ? err.message : "Đã có lỗi xảy ra");
+    } finally {
+      setAcceptedLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    loadQuests();
-  }, [loadQuests]);
+    loadAvailable();
+    loadAccepted();
+  }, [loadAvailable, loadAccepted]);
 
-  // TODO: wire up to the real accept-quest endpoint once it exists on the backend,
-  // e.g. POST /api/quests/{playerId}/accept/{questId}
+  useEffect(
+    () =>
+      onSSE("quest-completed", () => {
+        loadAccepted(true);
+        loadAvailable(true);
+      }),
+    [loadAccepted, loadAvailable],
+  );
+
   const handleAcceptQuest = async (questId: number) => {
     setAcceptingId(questId);
     try {
-      console.log("Accept quest requested:", questId);
-      setFlashMessage("Tính năng nhận nhiệm vụ đang được phát triển");
+      await request<null>(`/api/quests/accept/${questId}`, {
+        method: "POST",
+      });
+      await Promise.all([loadAvailable(true), loadAccepted(true)]);
+      setActiveTab("accepted");
+    } catch (err) {
+      setFlashMessage(
+        err instanceof Error ? err.message : "Không thể nhận nhiệm vụ",
+      );
     } finally {
       setAcceptingId(null);
     }
@@ -125,15 +109,21 @@ export function QuestPanel({ playerId }: QuestPanelProps) {
           className={`${styles.tabButton} ${
             activeTab === "available" ? styles.tabActive : ""
           }`}
-          onClick={() => setActiveTab("available")}
+          onClick={() => {
+            setActiveTab("available");
+            loadAvailable(true);
+          }}
         >
           Nhiệm Vụ Khả Dụng
         </button>
         <button
           className={`${styles.tabButton} ${
-            activeTab === "claimed" ? styles.tabActive : ""
+            activeTab === "accepted" ? styles.tabActive : ""
           }`}
-          onClick={() => setActiveTab("claimed")}
+          onClick={() => {
+            setActiveTab("accepted");
+            loadAccepted(true);
+          }}
         >
           Nhiệm Vụ Đang Nhận
         </button>
@@ -143,19 +133,26 @@ export function QuestPanel({ playerId }: QuestPanelProps) {
         {activeTab === "available" ? (
           <AvailableQuestsList
             quests={availableQuests}
-            loading={loading}
-            error={error}
+            loading={availableLoading}
+            error={availableError}
             acceptingId={acceptingId}
             onAccept={handleAcceptQuest}
-            onRetry={loadQuests}
+            onRetry={() => loadAvailable()}
           />
         ) : (
-          <ClaimedQuestsList />
+          <AcceptedQuestsList
+            quests={acceptedQuests}
+            loading={acceptedLoading}
+            error={acceptedError}
+            onRetry={() => loadAccepted()}
+          />
         )}
       </div>
     </div>
   );
 }
+
+/* ---------- Available ---------- */
 
 interface AvailableQuestsListProps {
   quests: AvailableQuest[];
@@ -208,7 +205,10 @@ function AvailableQuestsList({
             {quest.questObjectives.map((objective, idx) => (
               <li key={idx} className={styles.objectiveItem}>
                 <span className={styles.objectiveIcon}>
-                  {OBJECTIVE_ICON[objective.objectiveType]}
+                  <img
+                    src={`data:image/svg+xml;utf8,${encodeURIComponent(OBJECTIVE_ICON[objective.objectiveType])}`}
+                    alt=""
+                  />
                 </span>
                 <span>{objective.description}</span>
               </li>
@@ -228,12 +228,37 @@ function AvailableQuestsList({
   );
 }
 
-function ClaimedQuestsList() {
-  // TODO: replace with a real fetch to GET/POST /api/quests/{playerId}/claimed
-  // (or wherever in-progress quests end up living) once that endpoint exists.
-  const claimedQuests: ClaimedQuest[] = [];
+/* ---------- Accepted ---------- */
 
-  if (claimedQuests.length === 0) {
+interface AcceptedQuestsListProps {
+  quests: AcceptedQuest[];
+  loading: boolean;
+  error: string | null;
+  onRetry: () => void;
+}
+
+function AcceptedQuestsList({
+  quests,
+  loading,
+  error,
+  onRetry,
+}: AcceptedQuestsListProps) {
+  if (loading) {
+    return <div className={styles.stateMessage}>Đang tải nhiệm vụ...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className={styles.stateMessage}>
+        <p>{error}</p>
+        <button className={styles.retryButton} onClick={onRetry}>
+          Thử lại
+        </button>
+      </div>
+    );
+  }
+
+  if (quests.length === 0) {
     return (
       <div className={styles.stateMessage}>Bạn chưa nhận nhiệm vụ nào</div>
     );
@@ -241,27 +266,78 @@ function ClaimedQuestsList() {
 
   return (
     <ul className={styles.questList}>
-      {claimedQuests.map((quest) => (
+      {quests.map((quest) => (
         <li key={quest.id} className={styles.questCard}>
           <div className={styles.questCardHeader}>
             <span className={styles.questName}>{quest.name}</span>
+            <span className={styles.questRealm}>{quest.requiredRealm}</span>
           </div>
-          <div className={styles.progressTrack}>
-            <div
-              className={styles.progressFill}
-              style={{
-                width: `${Math.min(
-                  100,
-                  (quest.progress / quest.requiredCount) * 100,
-                )}%`,
-              }}
-            />
-          </div>
-          <span className={styles.progressLabel}>
-            {quest.progress}/{quest.requiredCount}
-          </span>
+
+          <ul className={styles.objectiveList}>
+            {quest.objectiveAndProgressOfQuests.map((objective, idx) => (
+              <ObjectiveRow key={idx} objective={objective} />
+            ))}
+          </ul>
         </li>
       ))}
     </ul>
+  );
+}
+
+function describeProgress(o: ObjectiveProgress): {
+  label: string;
+  ratio: number | null;
+} {
+  switch (o.questType) {
+    case "LEVEL_UP":
+      return {
+        label: `${o.currentRealm} ${o.currentRealmStage} → ${o.targetRealm} ${o.targetRealmStage}`,
+        ratio: null,
+      };
+    case "REACH_COORDINATE":
+      return {
+        label: `(${o.currentX}, ${o.currentY}) → (${o.targetX}, ${o.targetY})`,
+        ratio: null,
+      };
+    case "REACH_MAP":
+      return { label: `Bản đồ ${o.currentMapId} → ${o.mapId}`, ratio: null };
+    case "KILL_MONSTER":
+    case "COLLECT_ITEM": {
+      const current = o.currentCount ?? 0;
+      const required = o.requiredCount ?? 0;
+      return {
+        label: `${current}/${required}`,
+        ratio: required > 0 ? current / required : 1,
+      };
+    }
+  }
+}
+
+function ObjectiveRow({ objective }: { objective: ObjectiveProgress }) {
+  const { label, ratio } = describeProgress(objective);
+
+  return (
+    <li className={styles.objectiveBlock}>
+      <div className={styles.objectiveItem}>
+        <span className={styles.objectiveIcon}>
+          <img
+            src={`data:image/svg+xml;utf8,${encodeURIComponent(OBJECTIVE_ICON[objective.questType])}`}
+            alt=""
+          />
+        </span>
+        <span>{objective.description}</span>
+      </div>
+
+      {ratio !== null && (
+        <div className={styles.progressTrack}>
+          <div
+            className={styles.progressFill}
+            style={{ width: `${Math.min(100, ratio * 100)}%` }}
+          />
+        </div>
+      )}
+
+      {label && <span className={styles.progressLabel}>{label}</span>}
+    </li>
   );
 }

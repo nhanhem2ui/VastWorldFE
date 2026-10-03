@@ -23,12 +23,9 @@ function useNextBreakthrough(playerId: string | undefined) {
     try {
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-      const res = await fetch(
-        `${baseUrl}/api/players/nextBreakthrough/${playerId}`,
-        {
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`${baseUrl}/api/players/nextBreakthrough`, {
+        credentials: "include",
+      });
 
       const result: ServiceResult<NextBreakthroughResponse> = await res.json();
 

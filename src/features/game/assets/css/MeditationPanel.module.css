@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@400;700&family=IM+Fell+English:ital@0;1&display=swap");
-
 /* ── Panel shell ─────────────────────────────────────────────── */
 .panel {
   background-image: url(/src/shared/assets/img/common/gray-golden.png);
@@ -78,7 +76,7 @@
 }
 
 .durationDisplay {
-  font-family: "Cinzel", serif;
+  font-family: "Cinzel Decorative", serif;
   font-size: 1rem;
   color: #d4a843;
   text-align: center;
@@ -249,7 +247,7 @@
   position: absolute;
   right: 0;
   top: calc(100% + 5px);
-  font-family: "Cinzel", serif;
+  font-family: "Cinzel Decorative", serif;
   font-size: 0.6rem;
   letter-spacing: 0.06em;
   color: #ffc34c;
@@ -271,7 +269,7 @@
   align-self: center;
 }
 .statValue {
-  font-family: "Cinzel", serif;
+  font-family: "Cinzel Decorative", serif;
   font-size: 0.74rem;
   color: #e8dfc8;
   text-align: right;

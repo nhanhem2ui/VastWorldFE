@@ -186,6 +186,29 @@
   font-size: 0.7rem;
   color: #a39eb3;
 }
+.objectiveBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-family: var(--game-font-body);
+  font-size: 0.8rem;
+  color: #c9c3d6;
+}
+
+.objectiveHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.objectiveDone {
+  color: #8fbf8f;
+}
+
+.objectiveDone .progressFill {
+  background: linear-gradient(90deg, #6aa86a, #8fd68f);
+}
+
 @media (max-width: 768px) {
     .panel{
         right: 6vw;

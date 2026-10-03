@@ -56,6 +56,7 @@ function Login() {
         role: result.data.role,
         playerID: result.data.playerID,
       });
+
       setFlashMessage("Login Successfully");
       setMessage(result.message);
       await sleep(1000);
