@@ -1,12 +1,13 @@
 interface StatsOfItem {
-  hp: number | null;
-  attack: number | null;
-  defense: number | null;
-  critRate: number | null;
-  critDamage: number | null;
-  speed: number | null;
-  lifeSteal: number | null;
-  cultivationSpeed: number | null;
+  hp: number;
+  attack: number;
+  defense: number;
+  critRate: number;
+  critDamage: number;
+  speed: number;
+  lifeSteal: number;
+  cultivationSpeed: number;
+  breakthroughChance: number;
 }
 
 export const EQUIPMENT_SLOT_TYPES = [

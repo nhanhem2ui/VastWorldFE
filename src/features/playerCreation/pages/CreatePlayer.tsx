@@ -98,13 +98,13 @@ function SpiritRootRollPhase({
     setRollMessage("");
 
     try {
-      const response = await fetch(
-        `${baseUrl}/api/player-spirit-roots/roll/${playerId}`,
-        {
-          method: "POST",
-          credentials: "include",
+      const response = await fetch(`${baseUrl}/api/player-spirit-roots/roll`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+      });
 
       const result: ServiceResult<RollSpiritRootResponse> =
         await response.json();

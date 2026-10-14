@@ -108,8 +108,11 @@ export function MeditationPanel({
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`${baseUrl}/api/player-meditations/${playerId}`, {
+      const res = await fetch(`${baseUrl}/api/player-meditations`, {
         method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
         credentials: "include",
       });
       if (res.status === 404) {
@@ -137,11 +140,13 @@ export function MeditationPanel({
     setError("");
     try {
       const res = await fetch(
-        `${baseUrl}/api/player-meditations/beginMeditate`,
+        `${baseUrl}/api/player-meditations/beginMeditate/${durationMinutes}`,
         {
           method: "POST",
           credentials: "include",
-          body: JSON.stringify({ playerId, durationMinutes }),
+          headers: {
+            "Content-Type": "application/json",
+          },
         },
       );
       if (!res.ok) throw new Error("Không thể bắt đầu tu luyện.");
@@ -159,8 +164,14 @@ export function MeditationPanel({
     setError("");
     try {
       const res = await fetch(
-        `${baseUrl}/api/player-meditations/claimMeditate/${playerId}`,
-        { method: "POST", credentials: "include" },
+        `${baseUrl}/api/player-meditations/claimMeditate`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
       );
       setFlashMessage("Đã nhận được tu vi");
 

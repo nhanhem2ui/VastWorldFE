@@ -22,8 +22,11 @@ export async function mapComponent(
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   // 1. Fetch player position
-  const posRes = await fetch(`${baseUrl}/api/map/playerPosition/${playerId}`, {
+  const posRes = await fetch(`${baseUrl}/api/map/playerPosition`, {
     method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
     credentials: "include"
   });
 
@@ -40,6 +43,9 @@ export async function mapComponent(
   // 2. Fetch map data
   const mapRes = await fetch(`${baseUrl}/api/map/${playerPos.mapId}`, {
     method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
     credentials: "include"
   });
 
@@ -264,8 +270,10 @@ export async function mapComponent(
       const res = await fetch(`${baseUrl}/api/map/travel`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          playerId,
           x: target.x,
           y: target.y,
           mapId: playerPos.mapId,

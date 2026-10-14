@@ -84,11 +84,6 @@ function useInventory(playerId: string | undefined) {
   };
 }
 
-/**
- * POSTs JSON and reports success. The response body is parsed defensively:
- * a void/204 endpoint (empty body) or a differently-shaped body must not
- * make a successful request look like a failure.
- */
 async function postAction(
   url: string,
   body: unknown,
@@ -274,7 +269,7 @@ export function InventoryPanel({
               <div className={styles.detailsStats}>
                 {STAT_LABELS.map(({ key, label, isPercent }) => {
                   const value = selectedItem.stats?.[key];
-                  if (value === null || value === undefined) return null;
+                  if (value === undefined || value === 0) return null;
                   const display = isPercent
                     ? `${Math.round(value * 100)}%`
                     : value.toLocaleString();
@@ -288,7 +283,6 @@ export function InventoryPanel({
               </div>
             )}
 
-            {/* Combat Check Logic */}
             {selectedItem.combatOnly ? (
               <div className={styles.combatOnlyTag}>
                 <svg
