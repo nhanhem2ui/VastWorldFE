@@ -49,10 +49,13 @@ function SpiritRoots({ playerId }: { playerId: string }) {
 
     async function getPlayerSpiritRoots() {
       try {
-        const res = await fetch(
-          `${baseUrl}/api/player-spirit-roots/${playerId}`,
-          { credentials: "include" },
-        );
+        const res = await fetch(`${baseUrl}/api/player-spirit-roots`, {
+          method: "GET",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
         const result: ServiceResult<string[]> = await res.json();
         if (!res.ok || !result.success || !result.data) return;
         if (!cancelled) {
@@ -398,7 +401,7 @@ export function PlayerStatsPanel({
             <div className={styles.detailsStats}>
               {STAT_LABELS.map(({ key, label, isPercent }) => {
                 const value = selectedEquipment.statsOfItem?.[key];
-                if (value === null || value === undefined) return null;
+                if (value === 0) return null;
                 const display = isPercent
                   ? `${Math.round(value * 100)}%`
                   : value.toLocaleString();

@@ -24,17 +24,10 @@ export interface AvailableQuest {
   requiredRealm: string;
   questObjectives: ObjectiveOfQuest[];
 }
-export interface ClaimedQuest {
-  id: number;
-  name: string;
-  progress: number;
-  requiredCount: number;
-}
 
 export interface ObjectiveProgress {
   questType: QuestObjectiveType;
   description: string;
-  isCompleted: boolean;
   
   // KillMonster / CollectItem
   monsterId?: number | null;

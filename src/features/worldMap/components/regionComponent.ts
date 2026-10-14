@@ -207,8 +207,11 @@ export async function regionComponent(
     try {
         const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-        const playeRegionRes = await fetch(`${baseUrl}/api/region/player/${playerId}`,{
+        const playeRegionRes = await fetch(`${baseUrl}/api/region/player`,{
             method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
             credentials: "include"
         });
           const playerRegionResponse: ServiceResult<GetPlayerRegionResponse> = await playeRegionRes.json();
@@ -222,6 +225,9 @@ export async function regionComponent(
 
         const regionRes = await fetch(`${baseUrl}/api/region/${playerRegion.regionId}`,{
             method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+            },
             credentials: "include"
         });
         

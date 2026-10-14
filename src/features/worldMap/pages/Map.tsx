@@ -137,8 +137,10 @@ export default function Map() {
       const res = await fetch(`${baseUrl}/api/map/travel`, {
         method: "POST",
         credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          playerId,
           x: 0,
           y: 0,
           mapId: decoration.mapId,

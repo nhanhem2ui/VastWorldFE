@@ -72,13 +72,13 @@ export function NextBreakthroughPanel({
 
       const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
-      const res = await fetch(
-        `${baseUrl}/api/players/breakthrough/${playerId}`,
-        {
-          method: "POST",
-          credentials: "include",
+      const res = await fetch(`${baseUrl}/api/players/breakthrough`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        credentials: "include",
+      });
 
       const result: ServiceResult<void> = await res.json();
 

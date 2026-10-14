@@ -18,7 +18,9 @@ async function request<T>(path: string, init?: RequestInit): Promise<T | null> {
     ...init,
   });
 
-  // Read the body even on 4xx so the backend's message can be shown
+  // 204 No Content: success, nothing to parse
+  if (res.status === 204) return null;
+
   const result: ServiceResult<T> | null = await res.json().catch(() => null);
 
   if (!res.ok || !result?.success) {
